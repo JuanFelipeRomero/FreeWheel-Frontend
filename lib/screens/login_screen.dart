@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "home_screen.dart";
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -36,11 +37,30 @@ class LoginForm extends StatelessWidget {
             TextFormField(
               decoration: const InputDecoration(hintText: '••••••'),
             ),
+
+            const SizedBox(height: 28),
+
+            FilledButton(
+              onPressed: () => _toHomeScreen(context),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                  Colors.blueAccent,
+                ),
+              ),
+              child: const Text("Iniciar sesión"),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+void _toHomeScreen(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const HomeScreen()),
+  );
 }
 
 //Funcion para crear campos con estilos personalizados
