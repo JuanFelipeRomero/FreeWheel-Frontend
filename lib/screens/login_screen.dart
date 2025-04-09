@@ -1,5 +1,8 @@
+import "dart:convert";
+
 import "package:flutter/material.dart";
 import "home_screen.dart";
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -12,6 +15,24 @@ class LoginScreen extends StatelessWidget {
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
+
+  Future<List<dynamic>?> fetchLogin() async {
+    try {
+      final url = Uri.parse('http://localhost:8081/auth/login');
+      final response = await http.post(url);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['token'];
+      } else {
+        print('Error en la respuesta: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error de conexión: $e');
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +84,7 @@ void _toHomeScreen(BuildContext context) {
   );
 }
 
+/*
 //Funcion para crear campos con estilos personalizados
 Widget _buildTextFiel({required label}) {
   return TextFormField(
@@ -72,3 +94,4 @@ Widget _buildTextFiel({required label}) {
     ),
   );
 }
+*/
