@@ -36,6 +36,13 @@ dependencies:
   cupertino_icons: ^1.0.8
   font_awesome_flutter: ^10.8.0
   google_fonts: ^6.2.0
+  intl: ^0.20.2
+  # --- Dependencias para Google Places ---
+  flutter_google_places_hoc081098: ^2.0.0 # Busca la última versión en pub.dev
+  google_api_headers: ^4.4.3 # Generalmente requerido por paquetes de Google API
+  flutter_google_maps_webservices: ^1.1.1
+  # --- Para manejar la API Key de forma segura (Recomendado) ---
+  flutter_dotenv: ^5.2.1 # Opcional pero muy recomendado
 
 dev_dependencies:
   flutter_test:
