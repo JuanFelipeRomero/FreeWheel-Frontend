@@ -1,37 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart'; // Importa el paquete intl
+import 'package:intl/intl.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:uuid/uuid.dart';
 
-// 1. Cambia a StatefulWidget
+import 'package:freewheel_frontend/data/models/place_models.dart';
+import 'package:freewheel_frontend/presentation/screens/place_search_screen.dart';
+import 'package:freewheel_frontend/data/models/trip_models.dart';
+import 'package:freewheel_frontend/data/services/trip_service.dart';
+
 class SearchTripsScreen extends StatefulWidget {
   const SearchTripsScreen({super.key});
 
   @override
-  // 2. Crea el State
   State<SearchTripsScreen> createState() => _SearchTripsScreenState();
 }
 
-// 3. Define la clase State
 class _SearchTripsScreenState extends State<SearchTripsScreen> {
-  // --- Variables de Estado ---
-  DateTime? _selectedDate; // Para guardar la fecha seleccionada (nullable)
-  int _numberOfSeats =
-      1; // Para guardar el número de asientos (con valor inicial)
-  // --- Fin Variables de Estado ---
+  // --- Variables de Estado existentes ---
+  DateTime? _selectedDate;
+  int _numberOfSeats = 1;
 
-  // 4. Mueve el método build aquí dentro
+  // --- Variables de Estado para Lugares (ACTUALIZADAS) ---
+  PlaceResult? _originResult; // Guarda el resultado completo del origen
+  PlaceResult? _destinationResult; // Guarda el resultado completo del destino
+
+  // --- API Key y Generador de UUID ---
+  final String kGoogleApiKey = dotenv.env['GOOGLE_API_KEY'] ?? "";
+  final _uuid = const Uuid();
+
+  // --- Servicio de viajes ---
+  final TripService _tripService = TripService();
+
+  // --- Indicador de carga ---
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
-    // Obtener colores del tema actual
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
-    final surfaceColor =
-        theme
-            .colorScheme
-            .surface; // Puedes usar surface directamente si quieres
-
-    // Formateador de fecha (requiere el paquete intl)
-    // Asegúrate de añadir 'intl: ^latest' a tu pubspec.yaml y correr 'flutter pub get'
     final DateFormat dateFormatter = DateFormat('dd/MM/yyyy');
 
     return Scaffold(
@@ -40,7 +47,7 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
           'Buscar viajes',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         ),
-        backgroundColor: theme.colorScheme.surface, // Usar surface del tema
+        backgroundColor: theme.colorScheme.surface,
         foregroundColor: theme.colorScheme.onSurface,
         elevation: 0,
       ),
@@ -48,25 +55,31 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
         child: Column(
           children: [
-            // Origen
+            // --- Origen (MODIFICADO) ---
             _buildInputField(
               context: context,
               icon: FontAwesomeIcons.locationDot,
-              title: 'Lugar de origen',
-              onTap: () {
-                print('Abrir selector de Origen');
-                // Aquí llamarías a la lógica para seleccionar el origen
-              },
+              // Muestra la descripción del resultado o el título por defecto
+              title: _originResult?.description ?? 'Desde', // USA PlaceResult
+              titleColor: _originResult == null ? Colors.grey.shade500 : null,
+              onTap:
+                  () => _handlePlaceSelection(
+                    isOrigin: true,
+                  ), // Llama al NUEVO handler
             ),
 
-            // Destino
+            // --- Destino (MODIFICADO) ---
             _buildInputField(
               context: context,
               icon: FontAwesomeIcons.locationDot,
-              title: 'Lugar de destino',
-              onTap: () {
-                print('Abrir selector de Destino');
-              },
+              title:
+                  _destinationResult?.description ?? 'Hasta', // USA PlaceResult
+              titleColor:
+                  _destinationResult == null ? Colors.grey.shade500 : null,
+              onTap:
+                  () => _handlePlaceSelection(
+                    isOrigin: false,
+                  ), // Llama al NUEVO handler
             ),
 
             // --- Fecha ---
@@ -74,67 +87,45 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
               context: context,
               icon: FontAwesomeIcons.calendar,
               title: 'Fecha',
-              // Muestra la fecha seleccionada o el placeholder
               displayValue:
                   _selectedDate == null
-                      ? 'DD/MM/AAAA' // Placeholder si no hay fecha
-                      : dateFormatter.format(
-                        _selectedDate!,
-                      ), // Fecha formateada
-              textColor:
-                  _selectedDate == null
-                      ? Colors.grey.shade500
-                      : null, // Color gris para placeholder
+                      ? 'DD/MM/AAAA'
+                      : dateFormatter.format(_selectedDate!),
+              textColor: _selectedDate == null ? Colors.grey.shade500 : null,
               onTap: () async {
-                // <--- Marcar como async
-                print('Abrir selector de Fecha');
-                // Lógica para mostrar un DatePicker y obtener el resultado
                 final DateTime? pickedDate = await showDatePicker(
                   context: context,
-                  initialDate:
-                      _selectedDate ??
-                      DateTime.now(), // Usa fecha seleccionada o hoy
-                  firstDate: DateTime.now(), // No permitir fechas pasadas
-                  lastDate: DateTime.now().add(
-                    const Duration(days: 365),
-                  ), // Límite de un año
+                  initialDate: _selectedDate ?? DateTime.now(),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
                   builder: (context, child) {
-                    // Para aplicar el tema correctamente al picker
                     return Theme(
                       data: Theme.of(context).copyWith(
-                        colorScheme: Theme.of(context).colorScheme.copyWith(
-                          primary: primaryColor, // Color primario del picker
-                        ),
+                        colorScheme: Theme.of(
+                          context,
+                        ).colorScheme.copyWith(primary: primaryColor),
                       ),
                       child: child!,
                     );
                   },
                 );
-
-                // Si el usuario seleccionó una fecha (no canceló)
                 if (pickedDate != null) {
-                  // Actualiza el estado con la nueva fecha
                   setState(() {
                     _selectedDate = pickedDate;
                   });
                 }
               },
             ),
-            // --- Fin Fecha ---
 
             // --- Numero de asientos ---
             _buildInputField(
               context: context,
               icon: FontAwesomeIcons.users,
               title: 'Número de asientos',
-              // Muestra el número de asientos actual
               displayValue: _numberOfSeats.toString(),
               onTap: () async {
-                // Llama a la función que muestra el diálogo
                 final int? selectedSeats = await _showSeatSelectorDialog();
-                // Si el usuario seleccionó un número (no canceló)
                 if (selectedSeats != null) {
-                  // Actualiza el estado con el nuevo número
                   setState(() {
                     _numberOfSeats = selectedSeats;
                   });
@@ -142,35 +133,177 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
               },
             ),
 
-            // --- Fin Numero de asientos ---
-            const Spacer(), // Empuja el botón al final
-            // Botón de búsqueda
+            const Spacer(),
+
+            // --- Botón de búsqueda ---
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
-                  // Lógica para buscar viajes usando _selectedDate y _numberOfSeats
-                  if (_selectedDate != null) {
-                    print(
-                      'Buscando viaje para el ${dateFormatter.format(_selectedDate!)} con $_numberOfSeats asientos',
-                    );
-                  } else {
-                    print('Por favor selecciona una fecha');
-                    // Podrías mostrar un mensaje al usuario aquí
-                  }
-                },
+                onPressed:
+                    _isLoading
+                        ? null // Deshabilita el botón mientras está cargando
+                        : () async {
+                          // Verifica si tenemos los resultados con coordenadas
+                          if (_originResult?.lat != null &&
+                              _destinationResult?.lat != null &&
+                              _selectedDate != null) {
+                            setState(() {
+                              _isLoading = true; // Activar indicador de carga
+                            });
+
+                            try {
+                              print(
+                                'Buscando viaje desde ${_originResult!.description} (${_originResult!.lat},${_originResult!.lng}) '
+                                'hasta ${_destinationResult!.description} (${_destinationResult!.lat},${_destinationResult!.lng}) '
+                                'el ${dateFormatter.format(_selectedDate!)} con $_numberOfSeats asientos',
+                              );
+
+                              // Realizar la búsqueda usando el servicio
+                              final TripSearchResponse response =
+                                  await _tripService.searchTrips(
+                                    originLat: _originResult!.lat!,
+                                    originLng: _originResult!.lng!,
+                                    destinationLat: _destinationResult!.lat!,
+                                    destinationLng: _destinationResult!.lng!,
+                                    date: _selectedDate!,
+                                    requiredSeats: _numberOfSeats,
+                                  );
+
+                              if (!mounted) return;
+
+                              // Mostrar los resultados en la consola
+                              if (response.success) {
+                                print(
+                                  '🚗 Viajes encontrados: ${response.trips.length}',
+                                );
+                                if (response.trips.isNotEmpty) {
+                                  for (final trip in response.trips) {
+                                    print(
+                                      '  - ID: ${trip.id}, Conductor: ${trip.conductorInfo.nombre}',
+                                    );
+                                    print(
+                                      '    Origen: ${trip.origenNombre}, Destino: ${trip.destinoNombre}',
+                                    );
+                                    print(
+                                      '    Fecha y hora: ${DateFormat('dd/MM/yyyy HH:mm').format(trip.fechaHoraSalida)}',
+                                    );
+                                    print(
+                                      '    Asientos disponibles: ${trip.asientosDisponibles}, Precio: \$${trip.precioPorAsiento}',
+                                    );
+                                    if (trip.detallesAdicionales != null) {
+                                      print(
+                                        '    Detalles adicionales: ${trip.detallesAdicionales}',
+                                      );
+                                    }
+                                    print('    Estado: ${trip.estado}');
+                                    print('    ----------------------------');
+                                  }
+                                } else {
+                                  print(
+                                    '👎 No se encontraron viajes disponibles para esta búsqueda.',
+                                  );
+                                }
+
+                                // Aquí puedes navegar a una pantalla de resultados
+                                // Navigator.push(...);
+
+                                // Por ahora, solo mostrar un mensaje de éxito
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Se encontraron ${response.trips.length} viajes disponibles.',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } else {
+                                // Mostrar mensaje de error
+                                print(
+                                  '❌ Error en la búsqueda: ${response.message}',
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: ${response.message}'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              print('⚠️ Excepción durante la búsqueda: $e');
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error de conexión: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading =
+                                      false; // Desactivar indicador de carga
+                                });
+                              }
+                            }
+                          } else {
+                            // Lógica para indicar qué falta
+                            String missing = "";
+                            if (_originResult?.lat == null) {
+                              missing += "origen válido, ";
+                            }
+                            if (_destinationResult?.lat == null) {
+                              missing += "destino válido, ";
+                            }
+                            if (_selectedDate == null) missing += "fecha, ";
+                            if (missing.isNotEmpty) {
+                              missing = missing.substring(
+                                0,
+                                missing.length - 2,
+                              );
+                              print('Por favor selecciona: $missing');
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Por favor selecciona: $missing',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
-                  foregroundColor: Colors.white, // Color del texto en el botón
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor:
+                      Colors.grey.shade400, // Color cuando está deshabilitado
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Buscar viajes',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                child:
+                    _isLoading
+                        ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : const Text(
+                          'Buscar viajes',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
               ),
             ),
           ],
@@ -179,51 +312,52 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
     );
   }
 
-  // 5. Mueve el método _buildInputField aquí dentro
-  //    (Modificado para aceptar displayValue y textColor opcionales)
+  // --- Widget Helper para los campos (Modificado para aceptar titleColor) ---
   Widget _buildInputField({
     required BuildContext context,
     required IconData icon,
     required String title,
     required VoidCallback onTap,
-    String? displayValue, // Valor a mostrar (fecha formateada, número asientos)
-    Color? textColor, // Para cambiar color del texto (ej. placeholder gris)
-    Widget?
-    trailing, // Mantenemos trailing por si acaso, pero priorizamos displayValue
+    String? displayValue,
+    Color?
+    titleColor, // Color específico para el título (usado para placeholder)
+    Color? textColor, // Color específico para displayValue/trailing
+    Widget? trailing,
   }) {
     final theme = Theme.of(context);
     final defaultTextColor = theme.colorScheme.onSurface.withOpacity(0.9);
+    final defaultTitleColor = theme.colorScheme.onSurface.withOpacity(0.7);
 
     return Container(
+      // ... (decoración sin cambios) ...
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(12),
-        color: theme.colorScheme.surface, // Color de fondo del contenedor
+        color: theme.colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            // color: theme.shadowColor.withOpacity(0.1), // Sombra más sutil
-            color: Colors.grey.withOpacity(0.1), // Sombra más sutil
+            color: Colors.grey.withOpacity(0.1),
             blurRadius: 5,
             offset: const Offset(0, 3),
           ),
         ],
       ),
-      margin: const EdgeInsets.only(bottom: 18), // Reducir un poco el margen
+      margin: const EdgeInsets.only(bottom: 18),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: ListTile(
-          leading: Icon(
-            icon,
-            color: theme.colorScheme.primary,
-            size: 20,
-          ), // Icono más pequeño
+          leading: Icon(icon, color: theme.colorScheme.primary, size: 20),
           title: Text(
             title,
             style: TextStyle(
-              color: theme.colorScheme.onSurface.withOpacity(0.7),
-              fontSize: 15, // Tamaño de fuente ligeramente menor
+              color:
+                  titleColor ?? defaultTitleColor, // Usa titleColor o default
+              fontSize: 15,
             ),
+            overflow:
+                TextOverflow.ellipsis, // Evita overflow si el nombre es largo
+            maxLines: 1,
           ),
           trailing:
               displayValue != null
@@ -232,49 +366,44 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color:
-                          textColor ??
-                          defaultTextColor, // Usa color provisto o default
+                      color: textColor ?? defaultTextColor,
                     ),
                   )
-                  : trailing, // Usa el trailing original si no hay displayValue
+                  : trailing,
         ),
       ),
     );
   }
 
-  // --- Método para mostrar el diálogo del selector de asientos ---
+  // --- Diálogo selector de asientos (sin cambios) ---
   Future<int?> _showSeatSelectorDialog() async {
-    // Guarda el valor actual para poder restaurarlo si cancelan
     int currentSelection = _numberOfSeats;
+    // ... (resto del código del diálogo igual que antes) ...
     return showDialog<int>(
-      // Especifica que el diálogo devuelve un int?
       context: context,
       builder: (BuildContext context) {
-        // Usa StatefulBuilder para que el contenido del diálogo pueda actualizarse
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
               title: const Text('Número de asientos'),
               content: Row(
+                /* ... Contenido del diálogo ... */
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   IconButton(
                     icon: const Icon(Icons.remove_circle_outline),
                     onPressed:
-                        currentSelection >
-                                1 // No permitir menos de 1 asiento
+                        currentSelection > 1
                             ? () {
                               setDialogState(() {
-                                // Actualiza solo el estado del diálogo
                                 currentSelection--;
                               });
                             }
-                            : null, // Deshabilita el botón si es 1
+                            : null,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   SizedBox(
-                    width: 40, // Ancho fijo para el número
+                    width: 40,
                     child: Text(
                       '$currentSelection',
                       textAlign: TextAlign.center,
@@ -287,40 +416,35 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
                   IconButton(
                     icon: const Icon(Icons.add_circle_outline),
                     onPressed:
-                        currentSelection <
-                                8 // Limitar a 8 asientos (o el límite que quieras)
+                        currentSelection < 8
                             ? () {
                               setDialogState(() {
-                                // Actualiza solo el estado del diálogo
                                 currentSelection++;
                               });
                             }
-                            : null, // Deshabilita si llega al límite
+                            : null,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ],
               ),
               actions: <Widget>[
+                /* ... Botones Cancelar y Aceptar ... */
                 TextButton(
                   child: const Text('Cancelar'),
                   onPressed: () {
-                    Navigator.of(
-                      context,
-                    ).pop(null); // Devuelve null al cancelar
+                    Navigator.of(context).pop(null);
                   },
                 ),
                 TextButton(
                   child: const Text('Aceptar'),
                   onPressed: () {
-                    Navigator.of(
-                      context,
-                    ).pop(currentSelection); // Devuelve el valor seleccionado
+                    Navigator.of(context).pop(currentSelection);
                   },
                 ),
               ],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0),
-              ), // Bordes redondeados para el diálogo
+              ),
             );
           },
         );
@@ -328,5 +452,55 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
     );
   }
 
-  // --- Fin método selector de asientos ---
+  // --- Lógica para Google Places Autocomplete ---
+  Future<void> _handlePlaceSelection({required bool isOrigin}) async {
+    // Verifica API Key
+    if (kGoogleApiKey.isEmpty ||
+        kGoogleApiKey == "TU_API_KEY_POR_DEFECTO_SI_FALLA") {
+      print("ERROR: API Key de Google no configurada.");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Error de configuración: Falta la clave de API de Google Maps.',
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    // Genera un NUEVO session token para esta sesión de búsqueda
+    final sessionToken = _uuid.v4();
+    print(
+      "Generated session token for ${isOrigin ? 'Origin' : 'Destination'}: $sessionToken",
+    );
+
+    // Abre la pantalla de búsqueda y espera el resultado (PlaceResult)
+    final PlaceResult? result = await Navigator.push<PlaceResult>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlaceSearchScreen(sessionToken: sessionToken),
+      ),
+    );
+
+    // Si el usuario seleccionó un lugar y volvió con datos
+    if (result != null) {
+      setState(() {
+        if (isOrigin) {
+          _originResult = result; // Guarda el resultado completo
+          print(
+            'Origen actualizado: ${result.description} (${result.lat}, ${result.lng})',
+          );
+        } else {
+          _destinationResult = result; // Guarda el resultado completo
+          print(
+            'Destino actualizado: ${result.description} (${result.lat}, ${result.lng})',
+          );
+        }
+      });
+    } else {
+      print("Place selection cancelled or failed.");
+    }
+  }
 }
