@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:freewheel_frontend/data/services/auth_service.dart';
+import 'package:freewheel_frontend/presentation/screens/login_screen.dart';
 import 'package:freewheel_frontend/presentation/shell/main_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -50,8 +52,53 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: GoogleFonts.roboto().fontFamily,
       ),
-      home: const MainScreen(),
+      //home: const MainScreen(),
+      home:  const AuthenticationWrapper(),
       debugShowCheckedModeBanner: false,
     );
+  }
+}
+
+class AuthenticationWrapper extends StatefulWidget {
+  const AuthenticationWrapper({Key? key}) : super(key: key);
+
+  @override
+  State<AuthenticationWrapper> createState() => _AuthenticationWrapperState();
+}
+
+class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
+  final AuthService _authService = AuthService();
+  bool _isLoading = true;
+  bool _isAuthenticated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuthentication();
+  }
+
+  Future<void> _checkAuthentication() async {
+    final isLogged = await _authService.isLogged();
+    setState(() {
+      _isAuthenticated = isLogged;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+   if(_isAuthenticated) {
+     return const MainScreen();
+   } else {
+     return const LoginScreen();
+   }
   }
 }

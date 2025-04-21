@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freewheel_frontend/presentation/screens/home_screen.dart';
+import 'package:freewheel_frontend/presentation/screens/profile_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/search_trips_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class _MainScreenState extends State<MainScreen> {
   static const List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
     SearchTripsScreen(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -53,6 +55,13 @@ class _MainScreenState extends State<MainScreen> {
             icon: FaIcon(FontAwesomeIcons.magnifyingGlass, size: _iconSize),
             label: 'Buscar',
           ),
+          BottomNavigationBarItem(
+              icon: FaIcon(
+                FontAwesomeIcons.user,
+                size: _iconSize,
+            ),
+            label: 'Perfil',
+          )
         ],
 
         // --- Funcionalidad ---
