@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:freewheel_frontend/screens/home_screen.dart";
+import "package:freewheel_frontend/presentation/screens/home_screen.dart";
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});

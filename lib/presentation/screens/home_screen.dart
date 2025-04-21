@@ -28,10 +28,4 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/*
-    return Scaffold(
-      body: Center(child: 
-      Text("Home page", style: TextStyle(fontSize: 24))
-      ),
-    );
-*/
+
