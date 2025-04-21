@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:freewheel_frontend/screens/home_screen.dart";
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -21,7 +22,10 @@ class RegisterForm extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Registrarse', style: TextStyle(fontSize: 20)),
+            Text(
+              'Registrarse',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
 
             const SizedBox(height: 32),
 
@@ -54,9 +58,28 @@ class RegisterForm extends StatelessWidget {
               child: Text("Codigo Organizacion"),
             ),
             TextFormField(decoration: const InputDecoration(hintText: '####')),
+
+            const SizedBox(height: 32),
+
+            FilledButton(
+              onPressed: () => _toHomeScreen(context),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                  Colors.blueAccent,
+                ),
+              ),
+              child: const Text('Registrarse'),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+void _toHomeScreen(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => HomeScreen()),
+  );
 }

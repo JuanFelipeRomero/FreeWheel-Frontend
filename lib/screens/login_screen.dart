@@ -43,7 +43,10 @@ class LoginForm extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Iniciar sesion', style: TextStyle(fontSize: 20)),
+            Text(
+              'Iniciar sesion',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
 
             const SizedBox(height: 32),
 
@@ -83,15 +86,3 @@ void _toHomeScreen(BuildContext context) {
     MaterialPageRoute(builder: (context) => const HomeScreen()),
   );
 }
-
-/*
-//Funcion para crear campos con estilos personalizados
-Widget _buildTextFiel({required label}) {
-  return TextFormField(
-    decoration: InputDecoration(
-      labelText: label, //recibe el label como parametro
-      hintText: 'Digite su correo',
-    ),
-  );
-}
-*/
