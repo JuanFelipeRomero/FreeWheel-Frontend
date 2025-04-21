@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'presentation/screens/register_screen.dart';
-import 'presentation/screens/login_screen.dart';
+import 'package:freewheel_frontend/presentation/shell/main_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -10,70 +14,44 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true),
-      title: 'Hola mundo',
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SizedBox.expand(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text("Free Wheel", style: TextStyle(fontSize: 40)),
-
-            const SizedBox(height: 80),
-
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  FilledButton(
-                    onPressed: () => _toLoginSreen(context),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.blueAccent,
-                      ),
-                    ),
-                    child: const Text("Iniciar sesión"),
-                  ),
-                  FilledButton(
-                    onPressed: () => _toRegisterScreen(context),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                        Colors.blueAccent,
-                      ),
-                    ),
-                    child: const Text("Registrarse"),
-                  ),
-                ],
-              ),
-            ),
-          ],
+      title: 'FreeWheel',
+      theme: ThemeData(
+        colorScheme: ColorScheme(
+          primary: const Color(0xFF2196F3), // Azul como color principal
+          onPrimary: Colors.white,
+          secondary: const Color(0xFF64B5F6), // Azul más claro como secundario
+          onSecondary: Colors.white,
+          surface: Colors.white,
+          onSurface: Colors.black,
+          error: Colors.red,
+          onError: Colors.white,
+          brightness: Brightness.light,
         ),
+        // Colores adicionales para elementos de la UI
+        cardColor: Colors.white,
+        dividerColor: const Color(0xFFE0E0E0), // Gris claro para divisores
+        shadowColor: Colors.black.withOpacity(0.1),
+        // Botones y componentes interactivos
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2196F3),
+            foregroundColor: Colors.white,
+          ),
+        ),
+        // Componentes de texto
+        textTheme: TextTheme(
+          titleLarge: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+          bodyLarge: TextStyle(color: Colors.black87),
+          bodyMedium: TextStyle(color: Colors.black87),
+        ),
+        useMaterial3: true,
+        fontFamily: GoogleFonts.roboto().fontFamily,
       ),
+      home: const MainScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
-}
-
-void _toLoginSreen(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const LoginScreen()),
-  );
-}
-
-void _toRegisterScreen(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const RegisterScreen()),
-  );
 }
