@@ -54,14 +54,14 @@ class MyApp extends StatelessWidget {
         fontFamily: GoogleFonts.roboto().fontFamily,
       ),
       //home: const MainScreen(),
-      home:  const AuthenticationWrapper(),
+      home: const AuthenticationWrapper(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class AuthenticationWrapper extends StatefulWidget {
-  const AuthenticationWrapper({Key? key}) : super(key: key);
+  const AuthenticationWrapper({super.key});
 
   @override
   State<AuthenticationWrapper> createState() => _AuthenticationWrapperState();
@@ -89,17 +89,13 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-   if(_isAuthenticated) {
-     return const MainScreen();
-   } else {
-     return const LoginScreen();
-   }
+    if (_isAuthenticated) {
+      return const MainScreen();
+    } else {
+      return const LoginScreen();
+    }
   }
 }

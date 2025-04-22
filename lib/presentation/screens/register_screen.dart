@@ -64,7 +64,7 @@ class RegisterForm extends StatelessWidget {
             FilledButton(
               onPressed: () => _toHomeScreen(context),
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
+                backgroundColor: WidgetStateProperty.all<Color>(
                   Colors.blueAccent,
                 ),
               ),

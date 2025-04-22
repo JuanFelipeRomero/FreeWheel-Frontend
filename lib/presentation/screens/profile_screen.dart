@@ -37,145 +37,158 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final buttonWidth = screenWidth * 0.80;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mi Perfil'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
+      appBar: AppBar(title: const Text('Mi Perfil')),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
 
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
-                    child: Icon(
-                      Icons.person,
-                      size: 80,
-                      color: theme.colorScheme.primary
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Nombre del usuario
-                  Text(
-                    _userData != null ? '${_userData!['nombre'] ?? 'Usuario'}' : 'Usuario',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  // Correo del usuario
-                  Text(
-                    _userData != null ? '${_userData!['correo'] ?? 'Sin correo'}' : 'Sin correo',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-
-                  const SizedBox(height: 36),
-
-                  SizedBox(
-                    width: buttonWidth,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const UserInfoScreen(),
-                          ),
-                        );
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.white,
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                          Colors.black87,
-                        ),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          )
-                        ),
-                        side: MaterialStateProperty.all<BorderSide>(
-                          const BorderSide(color: Colors.black12, width: 0.8),
-                        ),
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundColor: theme.colorScheme.primary.withOpacity(
+                        0.1,
                       ),
-                      child: const Text(
-                        'Mi información',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      child: Icon(
+                        Icons.person,
+                        size: 80,
+                        color: theme.colorScheme.primary,
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
-                  SizedBox(
-                    width: buttonWidth,
-                    child: ElevatedButton(
-                      onPressed: () => print('Convertirme en conductor'),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.blue,
-                        ),
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                          Colors.white,
-                        ),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          )
-                        ),
-                      ),
-                      child: const Text(
-                        'Convertirme en conductor',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    // Nombre del usuario
+                    Text(
+                      _userData != null
+                          ? '${_userData!['nombre'] ?? 'Usuario'}'
+                          : 'Usuario',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 16),
+                    // Correo del usuario
+                    Text(
+                      _userData != null
+                          ? '${_userData!['correo'] ?? 'Sin correo'}'
+                          : 'Sin correo',
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                    ),
 
-                  SizedBox(
-                    width: buttonWidth,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await _authService.logOut();
-                        if(context.mounted) {
-                          Navigator.pushAndRemoveUntil(
+                    const SizedBox(height: 36),
+
+                    SizedBox(
+                      width: buttonWidth,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
-                            (route) => false,
+                            MaterialPageRoute(
+                              builder: (context) => const UserInfoScreen(),
+                            ),
                           );
-                        }
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.redAccent,
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(
+                            Colors.white,
+                          ),
+                          foregroundColor: WidgetStateProperty.all<Color>(
+                            Colors.black87,
+                          ),
+                          shape:
+                              WidgetStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                          side: WidgetStateProperty.all<BorderSide>(
+                            const BorderSide(color: Colors.black12, width: 0.8),
+                          ),
                         ),
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          )
-                        ),
-                      ),
-                      child: const Text(
-                        "Cerrar Sesión",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        child: const Text(
+                          'Mi información',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 12),
+
+                    SizedBox(
+                      width: buttonWidth,
+                      child: ElevatedButton(
+                        onPressed: () => print('Convertirme en conductor'),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(
+                            Colors.blue,
+                          ),
+                          foregroundColor: WidgetStateProperty.all<Color>(
+                            Colors.white,
+                          ),
+                          shape:
+                              WidgetStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                        ),
+                        child: const Text(
+                          'Convertirme en conductor',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    SizedBox(
+                      width: buttonWidth,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await _authService.logOut();
+                          if (context.mounted) {
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                              (route) => false,
+                            );
+                          }
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all<Color>(
+                            Colors.redAccent,
+                          ),
+                          shape:
+                              WidgetStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                        ),
+                        child: const Text(
+                          "Cerrar Sesión",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
     );
   }
 }

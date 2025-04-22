@@ -36,18 +36,18 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> _login(BuildContext context) async {
-    if(!_formKey.currentState!.validate()) return;
-    
+    if (!_formKey.currentState!.validate()) return;
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final success = await _authService.login(
         _emailController.text.trim(),
         _passwordController.text,
       );
-      
+
       if (success) {
         Navigator.pushReplacement(
           context,
@@ -66,7 +66,7 @@ class _LoginFormState extends State<LoginForm> {
         const SnackBar(
           content: Text('Error de conexion'),
           backgroundColor: Colors.red,
-        )
+        ),
       );
     } finally {
       setState(() {
@@ -91,7 +91,10 @@ class _LoginFormState extends State<LoginForm> {
 
             const SizedBox(height: 32),
 
-            Align(alignment: Alignment.centerLeft, child: Text("Correo", style: TextStyle(fontSize: 16))),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Correo", style: TextStyle(fontSize: 16)),
+            ),
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(hintText: 'correo@ejemplo.com'),
@@ -106,7 +109,10 @@ class _LoginFormState extends State<LoginForm> {
 
             const SizedBox(height: 32),
 
-            Align(alignment: Alignment.centerLeft, child: Text("Contraseña", style: TextStyle(fontSize: 16),)),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text("Contraseña", style: TextStyle(fontSize: 16)),
+            ),
             TextFormField(
               controller: _passwordController,
               decoration: const InputDecoration(hintText: '••••••'),
@@ -124,24 +130,22 @@ class _LoginFormState extends State<LoginForm> {
             _isLoading
                 ? CircularProgressIndicator()
                 : ElevatedButton(
-              onPressed: () => _login(context),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                  Colors.blueAccent,
-                ),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  onPressed: () => _login(context),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all<Color>(
+                      Colors.blueAccent,
                     ),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  child: const Text(
+                    "Iniciar sesión",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              child: const Text("Iniciar sesión",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
           ],
         ),
       ),
