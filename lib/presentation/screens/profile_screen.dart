@@ -103,7 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           )
                         ),
                         side: MaterialStateProperty.all<BorderSide>(
-                          const BorderSide(color: Colors.black, width: 1.0),
+                          const BorderSide(color: Colors.black12, width: 0.8),
                         ),
                       ),
                       child: const Text(
@@ -121,18 +121,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () => print('Convertirme en conductor'),
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.white,
+                          Colors.blue,
                         ),
                         foregroundColor: MaterialStateProperty.all<Color>(
-                          Colors.black87,
+                          Colors.white,
                         ),
                         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           )
-                        ),
-                        side: MaterialStateProperty.all<BorderSide>(
-                          const BorderSide(color: Colors.black, width: 1.0),
                         ),
                       ),
                       child: const Text(

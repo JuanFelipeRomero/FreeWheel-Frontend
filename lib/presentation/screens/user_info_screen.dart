@@ -58,33 +58,41 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                 const SizedBox(height: 24),
 
                 //card con la info del usuario
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Colors.grey.shade200),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Datos Personales',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Divider(),
-                        _buildInfoRow('Nombre', _userData?['nombre'] ?? 'No disponible'),
-                        _buildInfoRow('Apellido', _userData?['apellido'] ?? 'No disponible'),
-                        _buildInfoRow('Correo', _userData?['correo'] ?? 'No disponible'),
-                        _buildInfoRow('Teléfono', _userData?['telefono'] ?? 'No disponible'),
-                      ],
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: Colors.grey.shade200),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child:
+                              const Text(
+                                'Datos Personales',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                          )
+,
+                          const SizedBox(height: 20,),
+                          _buildInfoRow('Nombre', _userData?['nombre'] ?? 'No disponible'),
+                          _buildInfoRow('Apellido', _userData?['apellido'] ?? 'No disponible'),
+                          _buildInfoRow('Correo', _userData?['correo'] ?? 'No disponible'),
+                          _buildInfoRow('Teléfono', _userData?['telefono'] ?? 'No disponible'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
+
 
                 const SizedBox(height: 24),
 
@@ -123,11 +131,11 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 100,
+            width: 70,
             child: Text(
               '$label:',
               style: const TextStyle(
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
             ),

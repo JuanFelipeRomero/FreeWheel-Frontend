@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
+  print("API URL: ${dotenv.env['API_BASE_URL']}");
   runApp(const MyApp());
 }
 

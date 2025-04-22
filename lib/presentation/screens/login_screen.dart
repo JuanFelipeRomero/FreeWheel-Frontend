@@ -86,12 +86,12 @@ class _LoginFormState extends State<LoginForm> {
           children: [
             Text(
               'Iniciar sesión',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 32),
 
-            Align(alignment: Alignment.centerLeft, child: Text("Correo")),
+            Align(alignment: Alignment.centerLeft, child: Text("Correo", style: TextStyle(fontSize: 16))),
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(hintText: 'correo@ejemplo.com'),
@@ -106,7 +106,7 @@ class _LoginFormState extends State<LoginForm> {
 
             const SizedBox(height: 32),
 
-            Align(alignment: Alignment.centerLeft, child: Text("Contraseña")),
+            Align(alignment: Alignment.centerLeft, child: Text("Contraseña", style: TextStyle(fontSize: 16),)),
             TextFormField(
               controller: _passwordController,
               decoration: const InputDecoration(hintText: '••••••'),

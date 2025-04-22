@@ -1,16 +1,18 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
   static const String _tokenKey = 'jwt_token';
   static const String _userDataKey = 'user_data';
+  final String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:8000';
 
   //Iniciar sesion y guardar token
   Future<bool> login(String email, String password) async {
     try {
-      //final url = Uri.parse('http://localhost:8081/auth/login');
-      final url = Uri.parse('http://192.168.1.9:8081/auth/login');
+
+      final url = Uri.parse('$baseUrl/auth/login');
 
       final response = await http.post(
         url,
