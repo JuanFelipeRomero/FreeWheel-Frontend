@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
   static const String _tokenKey = 'jwt_token';
+  static const String _userDataKey = 'user_data';
 
   //Iniciar sesion y guardar token
   Future<bool> login(String email, String password) async {
@@ -24,7 +24,12 @@ class AuthService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['token'];
-        return await _saveToken(token);
+        final userData = data['usuario'];
+
+        //guardar el token y la info del usuario
+        await _saveToken(token);
+        await _saveUserData(userData);
+        return true;
       }
 
       return false;
@@ -41,6 +46,12 @@ class AuthService {
     return prefs.setString(_tokenKey, token);
   }
 
+  // Guardar información del usuario
+  Future<bool> _saveUserData(dynamic userData) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setString(_userDataKey, jsonEncode(userData));
+  }
+
   //Verificar si hay un token guardado
   Future<bool> isLogged() async {
     final prefs = await SharedPreferences.getInstance();
@@ -54,11 +65,21 @@ class AuthService {
     return prefs.getString(_tokenKey);
   }
 
+  // Obtener información del usuario
+  Future<Map<String, dynamic>?> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userData = prefs.getString(_userDataKey);
+    if (userData != null && userData.isNotEmpty) {
+      return jsonDecode(userData) as Map<String, dynamic>;
+    }
+    return null;
+  }
+
   //Logout
   Future<bool> logOut() async {
     final prefs = await SharedPreferences.getInstance();
+    // Eliminar token y datos de usuario
+    await prefs.remove(_userDataKey);
     return prefs.remove(_tokenKey);
   }
-
-
 }
