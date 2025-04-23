@@ -18,7 +18,7 @@ class AuthService {
         url,
         body: jsonEncode({
           'correo': email,
-          'contraseña': password,
+          'password': password,
         }),
         headers: {'Content-Type': 'application/json'},
       );

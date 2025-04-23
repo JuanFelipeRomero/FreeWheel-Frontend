@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freewheel_frontend/data/services/auth_service.dart';
+import 'package:freewheel_frontend/presentation/screens/register_driver_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/user_info_screen.dart';
 
 import 'login_screen.dart';
@@ -118,7 +119,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(
                     width: buttonWidth,
                     child: ElevatedButton(
-                      onPressed: () => print('Convertirme en conductor'),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const RegisterDriverScreen()
+                            ),
+                        );
+                      },
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
                           Colors.blue,
