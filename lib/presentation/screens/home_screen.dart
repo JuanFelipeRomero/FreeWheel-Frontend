@@ -10,10 +10,12 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+
         title: const Text('FreeWheel'),
         backgroundColor: theme.colorScheme.surface,
         foregroundColor: theme.colorScheme.onSurface,
         elevation: 0,
+
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
