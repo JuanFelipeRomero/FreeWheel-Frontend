@@ -11,15 +11,11 @@ class AuthService {
   //Iniciar sesion y guardar token
   Future<bool> login(String email, String password) async {
     try {
-
       final url = Uri.parse('$baseUrl/auth/login');
 
       final response = await http.post(
         url,
-        body: jsonEncode({
-          'correo': email,
-          'contraseña': password,
-        }),
+        body: jsonEncode({'correo': email, 'password': password}),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -35,7 +31,6 @@ class AuthService {
       }
 
       return false;
-
     } catch (e) {
       print('Error en el login: $e');
       return false;
@@ -62,7 +57,7 @@ class AuthService {
   }
 
   //Obtener token
-  Future <String?> getToken() async {
+  Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);
   }

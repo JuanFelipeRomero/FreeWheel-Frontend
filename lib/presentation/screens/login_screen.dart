@@ -1,6 +1,7 @@
 import "dart:convert";
 import "package:flutter/material.dart";
 import 'package:freewheel_frontend/data/services/auth_service.dart';
+import 'package:freewheel_frontend/presentation/screens/registration_screen.dart';
 import "../shell/main_screen.dart";
 import "home_screen.dart";
 import 'package:http/http.dart' as http;
@@ -132,10 +133,10 @@ class _LoginFormState extends State<LoginForm> {
                 : ElevatedButton(
                   onPressed: () => _login(context),
                   style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all<Color>(
+                    backgroundColor: MaterialStateProperty.all<Color>(
                       Colors.blueAccent,
                     ),
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -146,6 +147,25 @@ class _LoginFormState extends State<LoginForm> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
+
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('¿No tienes una cuenta?'),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RegistrationScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('Registrarse'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
