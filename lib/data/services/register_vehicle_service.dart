@@ -50,67 +50,97 @@ class VehicleService {
         throw Exception('No se pudo obtener la información del conductor');
       }
 
-      // Print for debugging
-      print('Driver data: $driverData');
-      print('Driver ID: $driverId');
+      // Log the complete driver data for debugging
+      print('Complete driver data: $driverData');
+      print('Driver ID being used: $driverId');
 
       final uri = Uri.parse('$baseUrl/vehiculos/registrar-con-documentos');
+      print('API endpoint: $uri');
+
       final request = http.MultipartRequest('POST', uri);
 
-      // Add text fields - ensure they're properly formatted as strings
-      request.fields['placa'] = placa;
-      request.fields['marca'] = marca;
-      request.fields['modelo'] = modelo;
-      request.fields['anio'] = anio;
-      request.fields['color'] = color;
-      request.fields['tipo'] = tipo;
-      request.fields['capacidadPasajeros'] = capacidadPasajeros;
+      // Add fields
+      request.fields['placa'] = placa.trim();
+      request.fields['marca'] = marca.trim();
+      request.fields['modelo'] = modelo.trim();
+      request.fields['anio'] = anio.trim();
+      request.fields['color'] = color.trim();
+      request.fields['tipo'] = tipo.trim();
+      request.fields['capacidadPasajeros'] = capacidadPasajeros.trim();
       request.fields['conductorId'] = driverId.toString();
 
-      // Logging request fields for debugging
       print('Request fields: ${request.fields}');
 
       // Add files with proper content types
-      request.files.add(await http.MultipartFile.fromPath(
+      final licenciaTransitoFile = await http.MultipartFile.fromPath(
         'licenciaTransito',
         licenciaTransito.path,
         contentType: MediaType('image', 'jpeg'),
-      ));
+      );
 
-      request.files.add(await http.MultipartFile.fromPath(
+      final soatFile = await http.MultipartFile.fromPath(
         'soat',
         soat.path,
         contentType: MediaType('application', 'pdf'),
-      ));
+      );
 
-      request.files.add(await http.MultipartFile.fromPath(
+      final certificadoRevisionFile = await http.MultipartFile.fromPath(
         'certificadoRevision',
         certificadoRevision.path,
         contentType: MediaType('application', 'pdf'),
-      ));
+      );
 
-      request.files.add(await http.MultipartFile.fromPath(
+      final fotoFile = await http.MultipartFile.fromPath(
         'foto',
         foto.path,
         contentType: MediaType('image', 'jpeg'),
-      ));
+      );
+
+      request.files.add(licenciaTransitoFile);
+      request.files.add(soatFile);
+      request.files.add(certificadoRevisionFile);
+      request.files.add(fotoFile);
+
+      // Log file information
+      print('Files being sent:');
+      print('- licenciaTransito: length=${licenciaTransitoFile.length}, filename=${licenciaTransitoFile.filename}, content-type=${licenciaTransitoFile.contentType}');
+      print('- soat: length=${soatFile.length}, filename=${soatFile.filename}, content-type=${soatFile.contentType}');
+      print('- certificadoRevision: length=${certificadoRevisionFile.length}, filename=${certificadoRevisionFile.filename}, content-type=${certificadoRevisionFile.contentType}');
+      print('- foto: length=${fotoFile.length}, filename=${fotoFile.filename}, content-type=${fotoFile.contentType}');
+
+      // Check if files exist
+      print('Files exist:');
+      print('- licenciaTransito: ${await licenciaTransito.exists()}');
+      print('- soat: ${await soat.exists()}');
+      print('- certificadoRevision: ${await certificadoRevision.exists()}');
+      print('- foto: ${await foto.exists()}');
+
+      // Check file sizes
+      print('File sizes:');
+      print('- licenciaTransito: ${await licenciaTransito.length()} bytes');
+      print('- soat: ${await soat.length()} bytes');
+      print('- certificadoRevision: ${await certificadoRevision.length()} bytes');
+      print('- foto: ${await foto.length()} bytes');
 
       // Add authorization header
       final token = await _authService.getToken();
       request.headers['Authorization'] = 'Bearer $token';
 
-      // Check if all files exist
-      print('Files exist: ${await licenciaTransito.exists()}, ${await soat.exists()}, ${await certificadoRevision.exists()}, ${await foto.exists()}');
+      // Log headers
+      print('Request headers: ${request.headers}');
 
       // Send request
+      print('Sending request...');
       final response = await request.send();
       final responseData = await response.stream.bytesToString();
 
-      // Always log the response for debugging
+      // Log response
       print('Response status: ${response.statusCode}');
+      print('Response headers: ${response.headers}');
       print('Response body: $responseData');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Vehicle registration successful!');
         return true;
       } else {
         throw Exception('Error en la solicitud: ${response.statusCode}, $responseData');

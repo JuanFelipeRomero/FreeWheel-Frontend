@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:freewheel_frontend/data/services/register_vehicle_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
@@ -395,6 +396,10 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
                         prefixIcon: Icon(Icons.car_rental),
                       ),
                       textCapitalization: TextCapitalization.characters,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+                        UpperCaseTextFormatter(),
+                      ],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Por favor ingresa la placa del vehículo';
@@ -769,6 +774,19 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue
+      ) {
+    return TextEditingValue(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }
