@@ -116,39 +116,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 36),
 
-            SizedBox(
-              width: buttonWidth,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const UserInfoScreen(),
+                  SizedBox(
+                    width: buttonWidth,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const UserInfoScreen(),
+                          ),
+                        );
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          Colors.white,
+                        ),
+                        foregroundColor: MaterialStateProperty.all<Color>(
+                          Colors.black87,
+                        ),
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          )
+                        ),
+                        side: MaterialStateProperty.all<BorderSide>(
+                          const BorderSide(color: Colors.black12, width: 0.8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Mi información',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  );
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                    Colors.white,
                   ),
-                  foregroundColor: MaterialStateProperty.all<Color>(
-                    Colors.black87,
-                  ),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      )
-                  ),
-                  side: MaterialStateProperty.all<BorderSide>(
-                    const BorderSide(color: Colors.black12, width: 0.8),
-                  ),
-                ),
-                child: const Text(
-                  'Mi información',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
 
             const SizedBox(height: 12),
 

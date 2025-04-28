@@ -16,56 +16,89 @@ class Driver {
 // Modelo para representar los viajes disponibles
 class Trip {
   final int id;
-  final String origenNombre;
-  final String destinoNombre;
+  final int conductorId;
+  final String fecha;
+  final String horaInicio;
+  final String horaFin;
+  final double precioAsiento;
+  final int asientosDisponibles;
+  final String direccionOrigen;
   final double latitudOrigen;
   final double longitudOrigen;
+  final String direccionDestino;
   final double latitudDestino;
   final double longitudDestino;
-  final DateTime fechaHoraSalida;
-  final int asientosDisponibles;
-  final double precioPorAsiento;
   final String estado;
-  final String? detallesAdicionales;
-  final Driver conductorInfo;
+  final String nombreConductor;
+  final String apellidoConductor;
+  final String fotoConductor;
+  final String telefonoConductor;
+  final double calificacionConductor;
+  final String vehiculoPlaca;
+  final String vehiculoMarca;
+  final String vehiculoModelo;
+  final String vehiculoColor;
+  final String vehiculoTipo;
+  final String vehiculoFoto;
 
   Trip({
     required this.id,
-    required this.origenNombre,
-    required this.destinoNombre,
+    required this.conductorId,
+    required this.fecha,
+    required this.horaInicio,
+    required this.horaFin,
+    required this.precioAsiento,
+    required this.asientosDisponibles,
+    required this.direccionOrigen,
     required this.latitudOrigen,
     required this.longitudOrigen,
+    required this.direccionDestino,
     required this.latitudDestino,
     required this.longitudDestino,
-    required this.fechaHoraSalida,
-    required this.asientosDisponibles,
-    required this.precioPorAsiento,
     required this.estado,
-    this.detallesAdicionales,
-    required this.conductorInfo,
+    required this.nombreConductor,
+    required this.apellidoConductor,
+    required this.fotoConductor,
+    required this.telefonoConductor,
+    required this.calificacionConductor,
+    required this.vehiculoPlaca,
+    required this.vehiculoMarca,
+    required this.vehiculoModelo,
+    required this.vehiculoColor,
+    required this.vehiculoTipo,
+    required this.vehiculoFoto,
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
       id: json['id'] as int? ?? 0,
-      origenNombre: json['origenNombre'] as String? ?? 'Origen desconocido',
-      destinoNombre: json['destinoNombre'] as String? ?? 'Destino desconocido',
+      conductorId: json['conductorId'] as int? ?? 0,
+      fecha: json['fecha'] as String? ?? '',
+      horaInicio: json['horaInicio'] as String? ?? '',
+      horaFin: json['horaFin'] as String? ?? '',
+      precioAsiento: (json['precioAsiento'] as num?)?.toDouble() ?? 0.0,
+      asientosDisponibles: json['asientosDisponibles'] as int? ?? 0,
+      direccionOrigen:
+          json['direccionOrigen'] as String? ?? 'Origen desconocido',
       latitudOrigen: (json['latitudOrigen'] as num?)?.toDouble() ?? 0.0,
       longitudOrigen: (json['longitudOrigen'] as num?)?.toDouble() ?? 0.0,
+      direccionDestino:
+          json['direccionDestino'] as String? ?? 'Destino desconocido',
       latitudDestino: (json['latitudDestino'] as num?)?.toDouble() ?? 0.0,
       longitudDestino: (json['longitudDestino'] as num?)?.toDouble() ?? 0.0,
-      fechaHoraSalida:
-          json['fechaHoraSalida'] != null
-              ? DateTime.parse(json['fechaHoraSalida'] as String)
-              : DateTime.now(),
-      asientosDisponibles: json['asientosDisponibles'] as int? ?? 0,
-      precioPorAsiento: (json['precioPorAsiento'] as num?)?.toDouble() ?? 0.0,
       estado: json['estado'] as String? ?? 'DESCONOCIDO',
-      detallesAdicionales: json['detallesAdicionales'] as String?,
-      conductorInfo:
-          json['conductorInfo'] != null
-              ? Driver.fromJson(json['conductorInfo'] as Map<String, dynamic>)
-              : Driver(id: 0, nombre: 'Conductor desconocido'),
+      nombreConductor: json['nombreConductor'] as String? ?? 'Desconocido',
+      apellidoConductor: json['apellidoConductor'] as String? ?? '',
+      fotoConductor: json['fotoConductor'] as String? ?? '',
+      telefonoConductor: json['telefonoConductor'] as String? ?? '',
+      calificacionConductor:
+          (json['calificacionConductor'] as num?)?.toDouble() ?? 0.0,
+      vehiculoPlaca: json['vehiculoPlaca'] as String? ?? '',
+      vehiculoMarca: json['vehiculoMarca'] as String? ?? '',
+      vehiculoModelo: json['vehiculoModelo'] as String? ?? '',
+      vehiculoColor: json['vehiculoColor'] as String? ?? '',
+      vehiculoTipo: json['vehiculoTipo'] as String? ?? '',
+      vehiculoFoto: json['vehiculoFoto'] as String? ?? '',
     );
   }
 }

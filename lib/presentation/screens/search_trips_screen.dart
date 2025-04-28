@@ -8,6 +8,7 @@ import 'package:freewheel_frontend/data/models/place_models.dart';
 import 'package:freewheel_frontend/presentation/screens/place_search_screen.dart';
 import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/data/services/trip_service.dart';
+import 'package:freewheel_frontend/presentation/screens/trip_list_screen.dart';
 
 class SearchTripsScreen extends StatefulWidget {
   const SearchTripsScreen({super.key});
@@ -180,22 +181,26 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
                                 if (response.trips.isNotEmpty) {
                                   for (final trip in response.trips) {
                                     print(
-                                      '  - ID: ${trip.id}, Conductor: ${trip.conductorInfo.nombre}',
+                                      '  - ID: ${trip.id}, Conductor: ${trip.nombreConductor} ${trip.apellidoConductor}',
                                     );
                                     print(
-                                      '    Origen: ${trip.origenNombre}, Destino: ${trip.destinoNombre}',
+                                      '    Origen: ${trip.direccionOrigen}, Destino: ${trip.direccionDestino}',
                                     );
                                     print(
-                                      '    Fecha y hora: ${DateFormat('dd/MM/yyyy HH:mm').format(trip.fechaHoraSalida)}',
+                                      '    Fecha: ${trip.fecha}, Hora: ${trip.horaInicio} - ${trip.horaFin}',
                                     );
                                     print(
-                                      '    Asientos disponibles: ${trip.asientosDisponibles}, Precio: \$${trip.precioPorAsiento}',
+                                      '    Asientos disponibles: ${trip.asientosDisponibles}, Precio: \$${trip.precioAsiento}',
                                     );
-                                    if (trip.detallesAdicionales != null) {
-                                      print(
-                                        '    Detalles adicionales: ${trip.detallesAdicionales}',
-                                      );
-                                    }
+                                    print(
+                                      '    Vehículo: ${trip.vehiculoMarca} ${trip.vehiculoModelo} (${trip.vehiculoColor})',
+                                    );
+                                    print(
+                                      '    Placa: ${trip.vehiculoPlaca}, Tipo: ${trip.vehiculoTipo}',
+                                    );
+                                    print(
+                                      '    Calificación conductor: ${trip.calificacionConductor}',
+                                    );
                                     print('    Estado: ${trip.estado}');
                                     print('    ----------------------------');
                                   }
@@ -205,19 +210,14 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
                                   );
                                 }
 
-                                // Aquí puedes navegar a una pantalla de resultados
-                                // Navigator.push(...);
-
-                                // Por ahora, solo mostrar un mensaje de éxito
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Se encontraron ${response.trips.length} viajes disponibles.',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.green,
+                                // Navegar a la pantalla de resultados de viajes
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => TripListScreen(
+                                          trips: response.trips,
+                                        ),
                                   ),
                                 );
                               } else {
