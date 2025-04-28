@@ -50,8 +50,8 @@ class DriverService {
         final responseData = await response.stream.bytesToString();
         final driverData = jsonDecode(responseData);
 
-        // Log the driver data for debugging
-        print('Driver response data: $driverData');
+        // Update driver status to true
+        await _authService.updateDriverStatus(true);
 
         // Save driver data for later use in vehicle registration
         await VehicleService.saveDriverData(driverData);

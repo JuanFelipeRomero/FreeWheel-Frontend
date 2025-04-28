@@ -356,300 +356,337 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registro de Vehículo'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Información de tu vehículo',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    const Text(
-                      'Para completar tu registro como conductor, necesitamos información del vehículo que utilizarás.',
-                      style: TextStyle(fontSize: 16),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Placa
-                    TextFormField(
-                      controller: _placaController,
-                      decoration: const InputDecoration(
-                        labelText: 'Placa',
-                        hintText: 'Ingresa la placa del vehículo',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.car_rental),
-                      ),
-                      textCapitalization: TextCapitalization.characters,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
-                        UpperCaseTextFormatter(),
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa la placa del vehículo';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Marca
-                    TextFormField(
-                      controller: _marcaController,
-                      decoration: const InputDecoration(
-                        labelText: 'Marca',
-                        hintText: 'Ingresa la marca del vehículo',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.branding_watermark),
-                      ),
-                      textCapitalization: TextCapitalization.words,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa la marca del vehículo';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Modelo
-                    TextFormField(
-                      controller: _modeloController,
-                      decoration: const InputDecoration(
-                        labelText: 'Modelo',
-                        hintText: 'Ingresa el modelo del vehículo',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.model_training),
-                      ),
-                      textCapitalization: TextCapitalization.words,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa el modelo del vehículo';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Año
-                    TextFormField(
-                      controller: _anioController,
-                      decoration: const InputDecoration(
-                        labelText: 'Año',
-                        hintText: 'Ingresa el año del vehículo',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_today),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa el año del vehículo';
-                        }
-                        if (int.tryParse(value) == null) {
-                          return 'El año debe ser un número';
-                        }
-                        final year = int.parse(value);
-                        final currentYear = DateTime.now().year;
-                        if (year < 1980 || year > currentYear) {
-                          return 'Ingresa un año válido (1980-$currentYear)';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Color
-                    TextFormField(
-                      controller: _colorController,
-                      decoration: const InputDecoration(
-                        labelText: 'Color',
-                        hintText: 'Ingresa el color del vehículo',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.color_lens),
-                      ),
-                      textCapitalization: TextCapitalization.words,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa el color del vehículo';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Tipo de vehículo (dropdown)
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(
-                        labelText: 'Tipo de vehículo',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.directions_car),
-                      ),
-                      items: _tipoVehiculos.map((String tipo) {
-                        return DropdownMenuItem<String>(
-                          value: tipo,
-                          child: Text(tipo),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _selectedTipo = newValue;
-                        });
-                      },
-                      value: _selectedTipo ?? _tipoVehiculos[0],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor selecciona el tipo de vehículo';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Capacidad de pasajeros
-                    TextFormField(
-                      controller: _capacidadController,
-                      decoration: const InputDecoration(
-                        labelText: 'Capacidad de pasajeros',
-                        hintText: 'Número de pasajeros',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.people),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingresa la capacidad de pasajeros';
-                        }
-                        if (int.tryParse(value) == null) {
-                          return 'La capacidad debe ser un número';
-                        }
-                        final capacity = int.parse(value);
-                        if (capacity < 1 || capacity > 9) {
-                          return 'La capacidad debe estar entre 1 y 9 pasajeros';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    const Text(
-                      'Documentos del vehículo',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Licencia de tránsito (foto)
-                    _buildDocumentUploadSection(
-                      title: 'Licencia de tránsito',
-                      subtitle: 'Toma una foto clara de la licencia de tránsito de tu vehículo',
-                      icon: Icons.featured_play_list,
-                      isImage: true,
-                      file: _licenciaTransitoImage,
-                      onPressed: _takeLicenciaTransitoPhoto,
-                      buttonText: 'Tomar foto de licencia',
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // SOAT (PDF)
-                    _buildDocumentUploadSection(
-                      title: 'SOAT',
-                      subtitle: 'Sube el PDF del SOAT vigente de tu vehículo',
-                      icon: Icons.health_and_safety,
-                      isImage: false,
-                      file: _soatPdf,
-                      onPressed: _pickSoatPdf,
-                      buttonText: 'Seleccionar PDF de SOAT',
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Certificado de revisión técnico-mecánica (PDF)
-                    _buildDocumentUploadSection(
-                      title: 'Certificado de revisión técnico-mecánica',
-                      subtitle: 'Sube el PDF del certificado de revisión técnico-mecánica vigente',
-                      icon: Icons.engineering,
-                      isImage: false,
-                      file: _certificadoRevisionPdf,
-                      onPressed: _pickCertificadoRevisionPdf,
-                      buttonText: 'Seleccionar PDF de certificado',
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Foto del vehículo
-                    _buildDocumentUploadSection(
-                      title: 'Foto del vehículo',
-                      subtitle: 'Toma una foto clara y completa de tu vehículo',
-                      icon: Icons.directions_car,
-                      isImage: true,
-                      file: _vehicleImage,
-                      onPressed: _takeVehiclePhoto,
-                      buttonText: 'Tomar foto del vehículo',
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // Submit button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _submitVehicleRegistration,
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            theme.colorScheme.primary,
-                          ),
-                          foregroundColor: MaterialStateProperty.all<Color>(
-                            Colors.white,
-                          ),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          padding: MaterialStateProperty.all<EdgeInsets>(
-                            const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                        child: const Text(
-                          'Registrar Vehículo',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    return WillPopScope(
+      onWillPop: () async {
+        // Show dialog explaining why they can't go back
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text('Registro obligatorio'),
+            content: const Text(
+                'Debes completar el registro de tu vehículo para poder ser conductor. '
+                    'Este paso es obligatorio para ofrecer servicios en la plataforma.'
             ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Entendido'),
+              ),
+            ],
+          ),
+        );
+        // Return false to prevent default back navigation
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Registro de Vehículo'),
+          automaticallyImplyLeading: false, // Remove back button
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Información de tu vehículo',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                const Text(
+                  'Para completar tu registro como conductor, necesitamos información del vehículo que utilizarás.',
+                  style: TextStyle(fontSize: 16),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Placa
+                TextFormField(
+                  controller: _placaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Placa',
+                    hintText: 'Ingresa la placa del vehículo',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.car_rental),
+                  ),
+                  textCapitalization: TextCapitalization.characters,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+                    UpperCaseTextFormatter(),
+                    LengthLimitingTextInputFormatter(6),
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingresa la placa del vehículo';
+                    }
+                    if (value.length != 6) {
+                      return 'La placa debe tener exactamente 6 caracteres';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Marca
+                TextFormField(
+                  controller: _marcaController,
+                  decoration: const InputDecoration(
+                    labelText: 'Marca',
+                    hintText: 'Ingresa la marca del vehículo',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.branding_watermark),
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingresa la marca del vehículo';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Modelo
+                TextFormField(
+                  controller: _modeloController,
+                  decoration: const InputDecoration(
+                    labelText: 'Modelo',
+                    hintText: 'Ingresa el modelo del vehículo',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.model_training),
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingresa el modelo del vehículo';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Año
+                TextFormField(
+                  controller: _anioController,
+                  decoration: const InputDecoration(
+                    labelText: 'Año',
+                    hintText: 'Ingresa el año del vehículo',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.calendar_today),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingresa el año del vehículo';
+                    }
+                    if (int.tryParse(value) == null) {
+                      return 'El año debe ser un número';
+                    }
+                    final year = int.parse(value);
+                    final currentYear = DateTime.now().year;
+                    if (year < 1980 || year > currentYear) {
+                      return 'Ingresa un año válido (1980-$currentYear)';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Color
+                TextFormField(
+                  controller: _colorController,
+                  decoration: const InputDecoration(
+                    labelText: 'Color',
+                    hintText: 'Ingresa el color del vehículo',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.color_lens),
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingresa el color del vehículo';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Tipo de vehículo (dropdown)
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                    labelText: 'Tipo de vehículo',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.directions_car),
+                  ),
+                  items: _tipoVehiculos.map((String tipo) {
+                    return DropdownMenuItem<String>(
+                      value: tipo,
+                      child: Text(tipo),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedTipo = newValue;
+                    });
+                  },
+                  value: _selectedTipo ?? _tipoVehiculos[0],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor selecciona el tipo de vehículo';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Capacidad de pasajeros
+                TextFormField(
+                  controller: _capacidadController,
+                  decoration: const InputDecoration(
+                    labelText: 'Capacidad de pasajeros',
+                    hintText: 'Número de pasajeros',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.people),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), // Only allow digits
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingresa la capacidad de pasajeros';
+                    }
+                    if (int.tryParse(value) == null) {
+                      return 'La capacidad debe ser un número';
+                    }
+                    final capacity = int.parse(value);
+                    if (capacity <= 0) {
+                      return 'La capacidad debe ser mayor a 0';
+                    }
+                    if (capacity > 9) {
+                      return 'La capacidad máxima es de 9 pasajeros';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 32),
+
+                const Text(
+                  'Documentos del vehículo',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Licencia de tránsito (foto)
+                _buildDocumentUploadSection(
+                  title: 'Licencia de tránsito',
+                  subtitle: 'Toma una foto clara de la licencia de tránsito de tu vehículo',
+                  icon: Icons.featured_play_list,
+                  isImage: true,
+                  file: _licenciaTransitoImage,
+                  onPressed: _takeLicenciaTransitoPhoto,
+                  buttonText: 'Tomar foto de licencia',
+                ),
+
+                const SizedBox(height: 24),
+
+                // SOAT (PDF)
+                _buildDocumentUploadSection(
+                  title: 'SOAT',
+                  subtitle: 'Sube el PDF del SOAT vigente de tu vehículo',
+                  icon: Icons.health_and_safety,
+                  isImage: false,
+                  file: _soatPdf,
+                  onPressed: _pickSoatPdf,
+                  buttonText: 'Seleccionar PDF de SOAT',
+                ),
+
+                const SizedBox(height: 24),
+
+                // Certificado de revisión técnico-mecánica (PDF)
+                _buildDocumentUploadSection(
+                  title: 'Certificado de revisión técnico-mecánica',
+                  subtitle: 'Sube el PDF del certificado de revisión técnico-mecánica vigente',
+                  icon: Icons.engineering,
+                  isImage: false,
+                  file: _certificadoRevisionPdf,
+                  onPressed: _pickCertificadoRevisionPdf,
+                  buttonText: 'Seleccionar PDF de certificado',
+                ),
+
+                const SizedBox(height: 24),
+
+                // Foto del vehículo
+                _buildDocumentUploadSection(
+                  title: 'Foto del vehículo',
+                  subtitle: 'Toma una foto clara y completa de tu vehículo',
+                  icon: Icons.directions_car,
+                  isImage: true,
+                  file: _vehicleImage,
+                  onPressed: _takeVehiclePhoto,
+                  buttonText: 'Tomar foto del vehículo',
+                ),
+
+                const SizedBox(height: 40),
+
+                // Submit button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _submitVehicleRegistration,
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                        theme.colorScheme.primary,
+                      ),
+                      foregroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white,
+                      ),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Registrar Vehículo',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -701,30 +738,30 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
               ),
               child: isImage
                   ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        file,
-                        fit: BoxFit.cover,
-                      ),
-                    )
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(
+                  file,
+                  fit: BoxFit.cover,
+                ),
+              )
                   : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.picture_as_pdf,
-                          size: 48,
-                          color: Colors.red.shade700,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'PDF seleccionado: ${path.basename(file.path)}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.picture_as_pdf,
+                    size: 48,
+                    color: Colors.red.shade700,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'PDF seleccionado: ${path.basename(file.path)}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
                     ),
+                  ),
+                ],
+              ),
             )
           else
             Container(

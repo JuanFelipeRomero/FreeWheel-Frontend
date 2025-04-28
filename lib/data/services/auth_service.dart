@@ -77,6 +77,20 @@ class AuthService {
     return null;
   }
 
+  Future<bool> isDriver() async {
+    final userData = await getUserData();
+    return userData != null && userData['driver'] == true;
+  }
+
+  Future<bool> updateDriverStatus(bool isDriver) async {
+    final userData = await getUserData();
+    if (userData != null) {
+      userData['driver'] = isDriver;
+      return _saveUserData(userData);
+    }
+    return false;
+  }
+
   //Logout
   Future<bool> logOut() async {
     final prefs = await SharedPreferences.getInstance();

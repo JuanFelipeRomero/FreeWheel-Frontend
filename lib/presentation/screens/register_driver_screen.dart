@@ -144,13 +144,16 @@ class _RegisterDriverScreenState extends State<RegisterDriverScreen> {
               builder: (context) => const RegisterVehicleScreen(),
             ),
           );
+
+          // The bool result will still be refreshed by the system automatically
+          // when the user returns to the profile screen after vehicle registration
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al enviar solicitud: $e'),
+            content: Text('Error al registrar: $e'),
             backgroundColor: Colors.redAccent,
           ),
         );
