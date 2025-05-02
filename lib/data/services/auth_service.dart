@@ -15,7 +15,10 @@ class AuthService {
 
       final response = await http.post(
         url,
-        body: jsonEncode({'correo': email, 'password': password}),
+        body: jsonEncode({
+          'correo': email,
+          'password': password,
+        }),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -70,6 +73,20 @@ class AuthService {
       return jsonDecode(userData) as Map<String, dynamic>;
     }
     return null;
+  }
+
+  Future<bool> isDriver() async {
+    final userData = await getUserData();
+    return userData != null && userData['driver'] == true;
+  }
+
+  Future<bool> updateDriverStatus(bool isDriver) async {
+    final userData = await getUserData();
+    if (userData != null) {
+      userData['driver'] = isDriver;
+      return _saveUserData(userData);
+    }
+    return false;
   }
 
   //Logout
