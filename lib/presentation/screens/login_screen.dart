@@ -1,10 +1,7 @@
-import "dart:convert";
 import "package:flutter/material.dart";
 import 'package:freewheel_frontend/data/services/auth_service.dart';
 import 'package:freewheel_frontend/presentation/screens/registration_screen.dart';
 import "../shell/main_screen.dart";
-import "home_screen.dart";
-import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -133,10 +130,10 @@ class _LoginFormState extends State<LoginForm> {
                 : ElevatedButton(
                   onPressed: () => _login(context),
                   style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(
+                    backgroundColor: WidgetStateProperty.all<Color>(
                       Colors.blueAccent,
                     ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

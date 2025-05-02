@@ -10,12 +10,10 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-
         title: const Text('FreeWheel'),
         backgroundColor: theme.colorScheme.surface,
         foregroundColor: theme.colorScheme.onSurface,
         elevation: 0,
-
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -101,7 +99,6 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Lista de viajes destacados (ejemplo)
             Expanded(
               child: ListView.builder(
                 itemCount: 5,
@@ -126,7 +123,7 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'Madrid',
+                              'Universidad Central',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: theme.colorScheme.onSurface,
@@ -140,7 +137,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           Expanded(
                             child: Text(
-                              'Barcelona',
+                              'Universidad Javeriana',
                               textAlign: TextAlign.right,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -164,7 +161,7 @@ class HomeScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  '25€ por persona',
+                                  '\$25.000 por persona',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: theme.colorScheme.primary,

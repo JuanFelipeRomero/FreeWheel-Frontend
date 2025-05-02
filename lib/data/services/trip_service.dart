@@ -18,28 +18,49 @@ class TripService {
     required DateTime date,
     required int requiredSeats,
     int searchRadiusKm = 5,
+    String? horaInicioDesde,
+    String? horaInicioHasta,
   }) async {
     try {
-      // Formato de fecha para la API (dd/MM/yyyy)
-      final dateFormatter = DateFormat('dd/MM/yyyy');
+      // Formato de fecha para la API (yyyy-MM-dd) - compatible con LocalDate de Java
+      final dateFormatter = DateFormat('yyyy-MM-dd');
       final formattedDate = dateFormatter.format(date);
 
-      // Construir la URL con los parámetros
-      final url = Uri.parse(
-        '$baseUrl/viajes/buscar?'
-        'latitudOrigenBusqueda=$originLat'
-        '&longitudOrigenBusqueda=$originLng'
-        '&latitudDestinoBusqueda=$destinationLat'
-        '&longitudDestinoBusqueda=$destinationLng'
-        '&fecha=$formattedDate'
-        '&radioBusquedaKm=$searchRadiusKm'
-        '&numeroAsientosRequeridos=$requiredSeats',
+      // Construir la URL base sin parámetros
+      final url = Uri.parse('$baseUrl/viajes/buscar');
+
+      // Crear objeto JSON para el cuerpo de la solicitud
+      final Map<String, dynamic> requestBody = {
+        'latitudOrigenBusqueda': originLat,
+        'longitudOrigenBusqueda': originLng,
+        'latitudDestinoBusqueda': destinationLat,
+        'longitudDestinoBusqueda': destinationLng,
+        'fecha': formattedDate,
+        'radioBusquedaKm': searchRadiusKm,
+        'numeroAsientosRequeridos': requiredSeats,
+      };
+
+      // Agregar campos opcionales de horario si están disponibles
+      if (horaInicioDesde != null) {
+        requestBody['horaInicioDesde'] = horaInicioDesde;
+      }
+      if (horaInicioHasta != null) {
+        requestBody['horaInicioHasta'] = horaInicioHasta;
+      }
+
+      print('🔍 Enviando petición POST a: $url');
+      print('🔍 Cuerpo de la petición: ${jsonEncode(requestBody)}');
+
+      // Realizar la petición HTTP POST con el cuerpo JSON
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          // Si hay un token de autorización, agregarlo aquí:
+          // 'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(requestBody),
       );
-
-      print('🔍 Enviando petición a: $url');
-
-      // Realizar la petición HTTP
-      final response = await http.get(url);
 
       // Verificar si la respuesta es exitosa (código 200)
       if (response.statusCode == 200) {
