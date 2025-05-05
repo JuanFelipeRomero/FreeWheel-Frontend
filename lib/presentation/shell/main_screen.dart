@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freewheel_frontend/data/services/auth_service.dart';
+import 'package:freewheel_frontend/presentation/screens/driver_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/home_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/profile_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/search_trips_screen.dart';
@@ -39,7 +40,7 @@ class _MainScreenState extends State<MainScreen> {
 
     // Add conductor screen only if user is a driver
     if (_isDriver) {
-      options.add(const ConductorScreen());
+      options.add(const DriverScreen());
     }
 
     // Profile is always the last option
@@ -107,6 +108,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
+/*
 // Placeholder for the conductor screen - you'll need to create this
 class ConductorScreen extends StatelessWidget {
   const ConductorScreen({super.key});
@@ -153,3 +155,4 @@ class ConductorScreen extends StatelessWidget {
     );
   }
 }
+*/
