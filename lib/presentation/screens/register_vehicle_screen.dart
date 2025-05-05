@@ -7,6 +7,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
+import '../shell/main_screen.dart';
+
 class RegisterVehicleScreen extends StatefulWidget {
   const RegisterVehicleScreen({super.key});
 
@@ -37,7 +39,7 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
   bool _isLoading = false;
 
   // Lists for dropdowns
-  final List<String> _tipoVehiculos = ['Sedan', 'SUV', 'Hatchback', 'Camioneta', 'Otro'];
+  final List<String> _tipoVehiculos = ['Sedan', 'SUV', 'Hatchback', 'Pick-up', 'Otro'];
   String? _selectedTipo;
 
   @override
@@ -252,6 +254,12 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
 
   Future<void> _submitVehicleRegistration() async {
     if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Debes completar los campos correctamente!'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
       return;
     }
 
@@ -298,7 +306,13 @@ class _RegisterVehicleScreenState extends State<RegisterVehicleScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+          );
+
+
+         //Navigator.of(context).popUntil((route) => route.isFirst);
         }
       }
     } catch (e) {
