@@ -141,6 +141,7 @@ class VehicleService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('Vehicle registration successful!');
+        await _authService.updateDriverStatus(true);
         return true;
       } else {
         throw Exception('Error en la solicitud: ${response.statusCode}, $responseData');
