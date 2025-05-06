@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:freewheel_frontend/data/services/auth_service.dart';
 import 'package:freewheel_frontend/presentation/screens/register_driver_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/user_info_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login_screen.dart';
 
@@ -27,6 +28,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserData() async {
     final userData = await _authService.getUserData();
     final isDriver = await _authService.isDriver();
+
+    print('User Data: $userData');
 
     setState(() {
       _userData = userData;

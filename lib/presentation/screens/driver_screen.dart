@@ -33,7 +33,6 @@ class DriverScreen extends StatelessWidget {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTripScreen()));
               },
               style: ButtonStyle(
-                // *** FIX: Use MaterialStateProperty instead of WidgetStateProperty ***
                 backgroundColor: MaterialStateProperty.all<Color>(
                   Colors.blueAccent,
                 ),
@@ -47,7 +46,7 @@ class DriverScreen extends StatelessWidget {
                   const Size(250, 50),
                 ),
               ),
-              child: const Text('Crear nuevo viaje', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text('Publicar nuevo viaje', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
 
             const SizedBox(height: 24),
@@ -55,7 +54,6 @@ class DriverScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () => {print('vehiculos')},
               style: ButtonStyle(
-                // *** FIX: Use MaterialStateProperty instead of WidgetStateProperty ***
                 backgroundColor: MaterialStateProperty.all<Color>(
                   Colors.blueAccent,
                 ),
