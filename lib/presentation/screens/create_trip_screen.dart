@@ -8,6 +8,8 @@ import 'package:freewheel_frontend/presentation/screens/place_search_screen.dart
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
+import 'driver_screen.dart';
+
 class CreateTripScreen extends StatefulWidget {
   const CreateTripScreen({super.key});
   @override
@@ -218,6 +220,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     }
   }
 
+  // dart
   void _submitTrip() async {
     if (_originResult == null || _destinationResult == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -234,7 +237,6 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
       );
       return;
     }
-
 
     setState(() {
       _isLoading = true;
@@ -275,6 +277,11 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     if (response.success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Viaje publicado exitosamente')),
+      );
+      // Redirect to driver_screen after successful trip creation
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DriverScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

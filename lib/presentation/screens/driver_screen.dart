@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freewheel_frontend/presentation/screens/create_trip_screen.dart';
+import 'package:freewheel_frontend/presentation/screens/driver_trips_screen.dart';
 
 class DriverScreen extends StatelessWidget {
   const DriverScreen({super.key});
@@ -28,6 +29,30 @@ class DriverScreen extends StatelessWidget {
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 32),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => DriverTripsScreen()));
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                  Colors.blueAccent,
+                ),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                minimumSize: MaterialStateProperty.all<Size>(
+                  // Added minimum size like in register screen
+                  const Size(250, 50),
+                ),
+              ),
+              child: const Text('Viajes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ),
+
+            const SizedBox(height: 32),
+
             ElevatedButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTripScreen()));
