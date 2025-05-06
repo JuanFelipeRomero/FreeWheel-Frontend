@@ -40,7 +40,6 @@ class TripService {
         'numeroAsientosRequeridos': requiredSeats,
       };
 
-      // Agregar campos opcionales de horario si están disponibles
       if (horaInicioDesde != null) {
         requestBody['horaInicioDesde'] = horaInicioDesde;
       }
