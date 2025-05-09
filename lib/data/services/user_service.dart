@@ -89,26 +89,30 @@ class UserService {
 
       // Determinar el tipo MIME de la imagen
       final fileName = path.basename(profileImage.path);
-      final mimeType = lookupMimeType(profileImage.path) ?? 'image/jpeg'; // Default a JPEG si no se puede determinar
-      
+      final mimeType =
+          lookupMimeType(profileImage.path) ??
+          'image/jpeg'; // Default a JPEG si no se puede determinar
+
       print('📤 Archivo: $fileName, Tipo MIME: $mimeType');
 
       // Agregar la imagen con el tipo MIME correcto
       final imageStream = http.ByteStream(profileImage.openRead());
       final imageLength = await profileImage.length();
-      
+
       final imageField = http.MultipartFile(
-        'profileImage', 
-        imageStream, 
+        'profileImage',
+        imageStream,
         imageLength,
         filename: fileName,
-        contentType: MediaType.parse(mimeType), // Especificar el tipo MIME correcto
+        contentType: MediaType.parse(
+          mimeType,
+        ), // Especificar el tipo MIME correcto
       );
-      
+
       request.files.add(imageField);
-      
+
       print('📤 Enviando formulario multipart con imagen...');
-      
+
       // Enviar la solicitud
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
@@ -142,6 +146,96 @@ class UserService {
     } catch (e) {
       print('❌ Excepción durante el registro con imagen: $e');
       return UserRegistrationResponse.error('Error de conexión: $e');
+    }
+  }
+
+  // Método para obtener el perfil de un usuario
+  Future<UserProfile?> getUserProfile(int userId) async {
+    try {
+      // Construir la URL para el endpoint de usuario
+      final url = Uri.parse('$baseUrl/usuarios/$userId');
+
+      print('🔍 Obteniendo perfil de usuario con ID $userId: $url');
+
+      // Realizar la petición HTTP GET
+      final response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('📡 Respuesta del servidor - Código: ${response.statusCode}');
+
+      // Verificar si la respuesta es exitosa (código 2xx)
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        print('✅ Perfil obtenido exitosamente: ${response.body}');
+
+        // Decodificar la respuesta JSON
+        final Map<String, dynamic> data = json.decode(response.body);
+        return UserProfile.fromJson(data);
+      } else {
+        print(
+          '❌ Error al obtener perfil: ${response.statusCode} - ${response.body}',
+        );
+
+        // Intentar mostrar detalles del error si hay una respuesta JSON
+        try {
+          final errorData = json.decode(response.body);
+          print('📋 Detalles del error: $errorData');
+        } catch (e) {
+          // Si no es JSON, mostrar el cuerpo de la respuesta tal cual
+          print('📋 Cuerpo de la respuesta: ${response.body}');
+        }
+
+        return null;
+      }
+    } catch (e) {
+      print('❌ Excepción al obtener perfil de usuario: $e');
+      return null;
+    }
+  }
+
+  // Método para obtener el perfil de un conductor
+  Future<UserProfile?> getDriverProfile(int driverId) async {
+    try {
+      // Construir la URL para el endpoint de conductor
+      final url = Uri.parse('$baseUrl/conductores/$driverId');
+
+      print('🔍 Obteniendo perfil de conductor con ID $driverId: $url');
+
+      // Realizar la petición HTTP GET
+      final response = await http.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('📡 Respuesta del servidor - Código: ${response.statusCode}');
+
+      // Verificar si la respuesta es exitosa (código 2xx)
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        print('✅ Perfil de conductor obtenido exitosamente: ${response.body}');
+
+        // Decodificar la respuesta JSON
+        final Map<String, dynamic> data = json.decode(response.body);
+        return UserProfile.fromJson(data);
+      } else {
+        print(
+          '❌ Error al obtener perfil de conductor: ${response.statusCode} - ${response.body}',
+        );
+
+        // Intentar mostrar detalles del error si hay una respuesta JSON
+        try {
+          final errorData = json.decode(response.body);
+          print('📋 Detalles del error: $errorData');
+        } catch (e) {
+          // Si no es JSON, mostrar el cuerpo de la respuesta tal cual
+          print('📋 Cuerpo de la respuesta: ${response.body}');
+        }
+
+        return null;
+      }
+    } catch (e) {
+      print('❌ Excepción al obtener perfil de conductor: $e');
+      return null;
     }
   }
 }
