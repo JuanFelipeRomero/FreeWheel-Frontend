@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:freewheel_frontend/data/models/trip_models.dart';
+import 'package:freewheel_frontend/presentation/screens/passenger_profile_screen.dart';
 
 class TripListScreen extends StatelessWidget {
   final List<Trip> trips;
@@ -104,13 +105,66 @@ class TripListScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                // Foto de perfil del conductor
-                CircleAvatar(
-                  radius: 25,
-                  backgroundImage: NetworkImage(
-                    trip.fotoConductor.isNotEmpty
-                        ? trip.fotoConductor
-                        : 'https://ui-avatars.com/api/?name=${trip.nombreConductor}+${trip.apellidoConductor}&background=random',
+                // Foto de perfil del conductor (clickable)
+                GestureDetector(
+                  onTap: () {
+                    // Imprimir el ID del conductor para depuración
+                    print(
+                      '⚠️ ID del conductor que se está pasando: ${trip.conductorId}',
+                    );
+
+                    // Verificar que el ID del conductor sea válido
+                    if (trip.conductorId > 0) {
+                      // Navegar a la pantalla de perfil del conductor
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => PassengerProfileScreen(
+                                userId: trip.conductorId,
+                              ),
+                        ),
+                      );
+                    } else {
+                      // Mostrar un mensaje de error si el ID no es válido
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'No se pudo cargar el perfil del conductor',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 25,
+                        backgroundImage: NetworkImage(
+                          trip.fotoConductor.isNotEmpty
+                              ? trip.fotoConductor
+                              : 'https://ui-avatars.com/api/?name=${trip.nombreConductor}+${trip.apellidoConductor}&background=random',
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          child: const Icon(
+                            Icons.person,
+                            size: 10,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -239,7 +293,7 @@ class TripListScreen extends StatelessWidget {
                     _buildInfoItem(
                       context,
                       FontAwesomeIcons.clock,
-                      '${trip.horaInicio.substring(0, 5)} - ${trip.horaFin.substring(0, 5)}',
+                      trip.horaInicio.substring(0, 5),
                     ),
                     _buildInfoItem(
                       context,

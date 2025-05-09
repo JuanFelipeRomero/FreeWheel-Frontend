@@ -53,3 +53,42 @@ class UserRegistrationResponse {
     return UserRegistrationResponse(success: false, message: errorMessage);
   }
 }
+
+// User profile model
+class UserProfile {
+  final int id;
+  final String nombre;
+  final String apellido;
+  final String correo;
+  final String telefono;
+  final String? fotoPerfil;
+  final String organizacionCodigo;
+  final int? conductorId;
+  final bool driver;
+
+  UserProfile({
+    required this.id,
+    required this.nombre,
+    required this.apellido,
+    required this.correo,
+    required this.telefono,
+    this.fotoPerfil,
+    required this.organizacionCodigo,
+    this.conductorId,
+    required this.driver,
+  });
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      id: json['id'],
+      nombre: json['nombre'],
+      apellido: json['apellido'],
+      correo: json['correo'],
+      telefono: json['telefono'],
+      fotoPerfil: json['fotoPerfil'],
+      organizacionCodigo: json['organizacionCodigo'],
+      conductorId: json['conductorId'],
+      driver: json['driver'] ?? false,
+    );
+  }
+}
