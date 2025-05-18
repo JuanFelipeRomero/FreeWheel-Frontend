@@ -4,10 +4,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:intl/intl.dart';
 
 import 'package:freewheel_frontend/data/models/trip_models.dart';
+import 'package:freewheel_frontend/data/models/trip_request.dart';
+import 'package:freewheel_frontend/data/services/auth_service.dart';
 
 class TripService {
   // URL base configurada desde las variables de entorno
   final String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:8000';
+  final AuthService _authService = AuthService();
 
   // Método para buscar viajes disponibles
   Future<TripSearchResponse> searchTrips({
@@ -90,6 +93,108 @@ class TripService {
     } catch (e) {
       print('❌ Excepción durante la búsqueda: $e');
       return TripSearchResponse.error('Error de conexión: $e');
+    }
+  }
+
+  // Method to get trip requests for a driver
+  Future<List<TripRequest>> getTripRequestsForDriver() async {
+    final userData = await _authService.getUserData();
+    final token = await _authService.getToken();
+
+    if (userData == null || token == null) {
+      print('User not authenticated or user data/token is missing.');
+      throw Exception('User not authenticated. Cannot fetch trip requests.');
+    }
+
+    // Assuming the user ID is stored with the key 'id' in userData.
+    // Adjust if your key is different (e.g., '_id', 'userId').
+    final userId = userData['id'];
+    if (userId == null) {
+      print('User ID not found in user data.');
+      throw Exception('User ID not found. Cannot fetch trip requests.');
+    }
+
+    final url = Uri.parse(
+      '$baseUrl/solicitudes-reserva/conductor/usuario/$userId',
+    );
+    print('🔍 Fetching trip requests from: $url');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(
+          utf8.decode(response.bodyBytes),
+        ); // Ensure UTF-8 decoding
+        print('✅ Trip requests received: ${response.body}');
+        return data
+            .map(
+              (jsonItem) =>
+                  TripRequest.fromJson(jsonItem as Map<String, dynamic>),
+            )
+            .toList();
+      } else {
+        print(
+          '❌ Error fetching trip requests: ${response.statusCode} - ${response.body}',
+        );
+        throw Exception(
+          'Failed to load trip requests (${response.statusCode})',
+        );
+      }
+    } catch (e) {
+      print('❌ Exception during fetching trip requests: $e');
+      throw Exception('Error connecting to the server: $e');
+    }
+  }
+
+  // Method to accept a trip request
+  Future<bool> acceptTripRequest(String requestId) async {
+    final token = await _authService.getToken();
+    if (token == null) {
+      print('User not authenticated or token is missing.');
+      throw Exception('User not authenticated. Cannot accept trip request.');
+    }
+
+    final url = Uri.parse(
+      '$baseUrl/solicitudes-reserva/aceptar-solicitud/$requestId',
+    );
+    print('📢 Accepting trip request: PUT to $url');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        // 204 No Content is also a success
+        print('✅ Trip request $requestId accepted successfully.');
+        // The API might return the updated request or just a success status.
+        // If it returns the updated object:
+        // final dynamic responseData = json.decode(response.body);
+        // return TripRequest.fromJson(responseData as Map<String, dynamic>);
+        // For now, assuming success if status code is 200/204 and returning true.
+        return true;
+      } else {
+        print(
+          '❌ Error accepting trip request $requestId: ${response.statusCode} - ${response.body}',
+        );
+        throw Exception(
+          'Failed to accept trip request (${response.statusCode}) - ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('❌ Exception during accepting trip request $requestId: $e');
+      throw Exception('Error connecting to the server: $e');
     }
   }
 }
