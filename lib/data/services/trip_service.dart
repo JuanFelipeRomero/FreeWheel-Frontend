@@ -197,4 +197,45 @@ class TripService {
       throw Exception('Error connecting to the server: $e');
     }
   }
+
+  // Method to reject a trip request
+  Future<bool> rejectTripRequest(String requestId) async {
+    final token = await _authService.getToken();
+    if (token == null) {
+      print('User not authenticated or token is missing.');
+      throw Exception('User not authenticated. Cannot reject trip request.');
+    }
+
+    final url = Uri.parse(
+      '$baseUrl/solicitudes-reserva/rechazar-solicitud/$requestId',
+    );
+    print('📢 Rejecting trip request: PUT to $url');
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        // body: jsonEncode({'status': 'RECHAZADO'}), // Or whatever body the API expects, if any
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        // 204 No Content is also a success
+        print('✅ Trip request $requestId rejected successfully.');
+        return true;
+      } else {
+        print(
+          '❌ Error rejecting trip request $requestId: ${response.statusCode} - ${response.body}',
+        );
+        throw Exception(
+          'Failed to reject trip request (${response.statusCode}) - ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('❌ Exception during rejecting trip request $requestId: $e');
+      throw Exception('Error connecting to the server: $e');
+    }
+  }
 }

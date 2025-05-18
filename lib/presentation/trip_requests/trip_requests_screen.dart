@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:freewheel_frontend/data/models/trip_request.dart'; // Import the moved TripRequest model
 import 'package:freewheel_frontend/data/services/trip_service.dart'; // Import TripService
 import 'package:freewheel_frontend/presentation/trip_requests/trip_request_accepted_screen.dart'; // Import the new screen
+import 'package:freewheel_frontend/presentation/trip_requests/trip_request_rejected_screen.dart'; // Import the new screen
 
 class TripRequestsScreen extends StatefulWidget {
   const TripRequestsScreen({super.key, this.tripId});
@@ -94,18 +95,55 @@ class _TripRequestsScreenState extends State<TripRequestsScreen> {
     }
   }
 
-  void _rejectRequest(TripRequest request) {
-    // Placeholder for actual reject logic
-    print('Rejected ${request.passengerName} (ID: ${request.id})');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Rejected ${request.passengerName}'),
-        backgroundColor: Colors.red,
-      ),
-    );
+  Future<void> _rejectRequest(TripRequest request) async {
+    if (_isProcessing) return; // Prevent multiple clicks
     setState(() {
-      _tripRequestsFuture = _fetchTripRequests(); // Re-fetch to reflect changes
+      _isProcessing = true;
+      _currentlyProcessingRequestId =
+          request.id; // Track which item is being processed
     });
+
+    try {
+      final success = await _tripService.rejectTripRequest(request.id);
+      if (success && mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder:
+                (context) => TripRequestRejectedScreen(
+                  passengerName: request.passengerName,
+                ),
+          ),
+        );
+        // Refresh the list of requests
+        setState(() {
+          _tripRequestsFuture = _fetchTripRequests();
+        });
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to reject request. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      print('Error rejecting request: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _isProcessing = false;
+        _currentlyProcessingRequestId = null; // Reset after operation
+      });
+    }
   }
 
   @override
