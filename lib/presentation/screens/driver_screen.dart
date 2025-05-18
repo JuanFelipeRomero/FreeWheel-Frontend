@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freewheel_frontend/presentation/screens/create_trip_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/driver_trips_screen.dart';
+import 'package:freewheel_frontend/presentation/trip_requests/trip_requests_screen.dart';
 
 class DriverScreen extends StatelessWidget {
   const DriverScreen({super.key});
@@ -32,7 +33,10 @@ class DriverScreen extends StatelessWidget {
 
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => DriverTripsScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DriverTripsScreen()),
+                );
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
@@ -48,14 +52,22 @@ class DriverScreen extends StatelessWidget {
                   const Size(250, 50),
                 ),
               ),
-              child: const Text('Viajes', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Viajes',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
 
             const SizedBox(height: 32),
 
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const CreateTripScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CreateTripScreen(),
+                  ),
+                );
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
@@ -71,7 +83,40 @@ class DriverScreen extends StatelessWidget {
                   const Size(250, 50),
                 ),
               ),
-              child: const Text('Publicar nuevo viaje', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Publicar nuevo viaje',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const TripRequestsScreen(),
+                  ),
+                );
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                  Colors.orangeAccent,
+                ),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                minimumSize: MaterialStateProperty.all<Size>(
+                  const Size(250, 50),
+                ),
+              ),
+              child: const Text(
+                'Solicitudes de Viaje',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
 
             const SizedBox(height: 24),
@@ -92,7 +137,10 @@ class DriverScreen extends StatelessWidget {
                   const Size(250, 50),
                 ),
               ),
-              child: const Text('Mi Vehiculo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Mi Vehiculo',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
