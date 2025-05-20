@@ -238,4 +238,42 @@ class TripService {
       throw Exception('Error connecting to the server: $e');
     }
   }
+
+  Future<List<Trip>> getDriverTrips() async {
+    try {
+      final userData = await _authService.getUserData();
+      final userId = userData?['id'];
+      final token = await _authService.getToken();
+
+      if (userId == null) {
+        throw Exception('User ID not available');
+      }
+
+      // Print debug information
+      print('🔍 Fetching driver trips with URL: $baseUrl/viajes/listar');
+      print('🔍 User ID: $userId');
+
+      final url = Uri.parse('$baseUrl/viajes/listar').replace(
+        queryParameters: {'userId': userId.toString(), 'esConductor': 'true'},
+      );
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        return data.map((json) => Trip.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load driver trips (${response.statusCode})');
+      }
+    } catch (e) {
+      print('Error fetching driver trips: $e');
+      rethrow;
+    }
+  }
 }
