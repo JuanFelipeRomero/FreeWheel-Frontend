@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:freewheel_frontend/presentation/screens/trip_detail_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/presentation/screens/passenger_profile_screen.dart';
+
+import '../../data/services/trip_service.dart';
 
 class TripListScreen extends StatelessWidget {
   final List<Trip> trips;
@@ -399,7 +404,13 @@ class TripListScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Implementar acción para reservar
+                  // Navigate to trip details screen instead of directly making a reservation
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TripDetailScreen(trip: trip),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
@@ -410,7 +421,7 @@ class TripListScreen extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Reservar asiento',
+                  'Ver detalles',
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
@@ -451,6 +462,179 @@ class TripListScreen extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+
+
+
+  // Add this method to the TripListScreen class
+  void _reserveSeat(BuildContext context, Trip trip) async {
+    final TripService tripService = TripService();
+
+    // Get the number of seats requested by the user during search
+    // If the trip doesn't have the requested seats info, default to 1
+    final int seatsToRequest = trip.asientosSolicitados ?? 1;
+
+    // Validate if there are enough seats available
+    if (trip.asientosDisponibles < seatsToRequest) {
+      _showErrorDialog(
+          context,
+          'No hay suficientes asientos disponibles para esta solicitud.'
+      );
+      return;
+    }
+
+    // Log the data that will be sent in the request
+    print('📤 RESERVA - Enviando solicitud con datos:');
+    print('📤 RESERVA - Viaje ID: ${trip.id}');
+    print('📤 RESERVA - Asientos solicitados: $seatsToRequest');
+    print('📤 RESERVA - Origen: ${trip.direccionOrigen}');
+    print('📤 RESERVA - Destino: ${trip.direccionDestino}');
+    print('📤 RESERVA - Conductor: ${trip.nombreConductor} ${trip.apellidoConductor} (ID: ${trip.conductorId})');
+
+    try {
+      final bool success = await tripService.requestSeatReservation(
+        tripId: trip.id,
+        seatsRequested: seatsToRequest,
+      );
+
+      print('📥 RESERVA - Respuesta: ${success ? "Exitosa" : "Fallida"}');
+
+      if (success) {
+        _showSuccessDialog(
+            context,
+            'Tu solicitud de reserva por $seatsToRequest ${seatsToRequest > 1 ? "asientos" : "asiento"} ha sido enviada correctamente. El conductor recibirá tu solicitud.'
+        );
+      }
+    } catch (e) {
+      print('❌ RESERVA - Error: $e');
+
+      // Extract error message from JSON response
+      String errorMessage = 'No se pudo procesar tu solicitud';
+
+      if (e.toString().contains('Failed to request seat reservation:')) {
+        try {
+          // Extract the JSON part from the exception message
+          String jsonStr = e.toString().split('Failed to request seat reservation: ')[1];
+          Map<String, dynamic> errorResponse = json.decode(jsonStr);
+
+          if (errorResponse.containsKey('error')) {
+            errorMessage = errorResponse['error'];
+          }
+        } catch (parseError) {
+          print('Error parsing error response: $parseError');
+        }
+      }
+
+      _showErrorDialog(context, errorMessage);
+    }
+  }
+
+
+// Improved success dialog
+  void _showSuccessDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.check_circle,
+                color: Colors.green,
+                size: 28,
+              ),
+              SizedBox(width: 10),
+              Text(
+                'Solicitud enviada',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            message,
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Aceptar',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+// Improved error dialog
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          backgroundColor: Colors.white,
+          title: Row(
+            children: [
+              Icon(
+                Icons.error_outline,
+                color: Colors.red,
+                size: 28,
+              ),
+              SizedBox(width: 10),
+              Text(
+                'Error',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.red.shade700,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            message,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Aceptar',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.red.shade700,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

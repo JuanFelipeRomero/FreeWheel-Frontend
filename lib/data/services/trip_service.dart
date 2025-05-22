@@ -96,6 +96,57 @@ class TripService {
     }
   }
 
+// Method to request seat reservation
+  Future<bool> requestSeatReservation({
+    required int tripId,
+    required int seatsRequested,
+  }) async {
+    final userData = await _authService.getUserData();
+    final token = await _authService.getToken();
+
+    if (userData == null || token == null) {
+      print('User not authenticated or user data/token is missing.');
+      throw Exception('User not authenticated. Cannot request seat reservation.');
+    }
+
+    final userId = userData['id'];
+    if (userId == null) {
+      print('User ID not found in user data.');
+      throw Exception('User ID not found. Cannot request seat reservation.');
+    }
+
+    final url = Uri.parse('$baseUrl/pasajeros/crear');
+    print('📢 Requesting seat reservation: POST to $url');
+
+    final Map<String, dynamic> requestBody = {
+      "usuarioId": userId,
+      "viajeId": tripId,
+      "asientosSolicitados": seatsRequested,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('✅ Seat reservation requested successfully.');
+        return true;
+      } else {
+        print('❌ Error requesting seat reservation: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to request seat reservation: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Exception during seat reservation request: $e');
+      throw Exception('Error connecting to the server: $e');
+    }
+  }
+
   // Method to get trip requests for a driver
   Future<List<TripRequest>> getTripRequestsForDriver() async {
     final userData = await _authService.getUserData();
