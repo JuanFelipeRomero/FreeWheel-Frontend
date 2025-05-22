@@ -6,6 +6,9 @@ import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/data/services/trip_service.dart';
 import 'package:freewheel_frontend/presentation/screens/passenger_profile_screen.dart';
 
+import '../trip_requests/trip_request_error.dart';
+import '../trip_requests/trip_request_successfull.dart';
+
 class TripDetailScreen extends StatelessWidget {
   final Trip trip;
 
@@ -76,7 +79,7 @@ class TripDetailScreen extends StatelessWidget {
                             trip.fecha,
                             style: const TextStyle(
                               fontWeight: FontWeight.w500,
-                              fontSize: 16,
+                              fontSize: 18,
                             ),
                           ),
                           Text(
@@ -183,14 +186,13 @@ class TripDetailScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300),
                         ),
                         child: Row(
                           children: [
                             CircleAvatar(
-                              radius: 30,
+                              radius: 40,
                               backgroundImage: NetworkImage(
                                 trip.fotoConductor.isNotEmpty
                                     ? trip.fotoConductor
@@ -253,37 +255,26 @@ class TripDetailScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (trip.vehiculoFoto.isNotEmpty)
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                trip.vehiculoFoto,
-                                width: 100,
-                                height: 80,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    width: 100,
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade300,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(
-                                      FontAwesomeIcons.car,
-                                      size: 30,
-                                      color: Colors.grey,
-                                    ),
-                                  );
-                                },
-                              ),
+                            CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.grey.shade300,
+                            backgroundImage: trip.vehiculoFoto.isNotEmpty
+                            ? NetworkImage(trip.vehiculoFoto)
+                                : null,
+                            child: trip.vehiculoFoto.isEmpty
+                            ? Icon(
+                            FontAwesomeIcons.car,
+                            size: 30,
+                            color: Colors.grey,
+                            )
+                                : null,
                             )
                           else
                             Container(
@@ -356,7 +347,7 @@ class TripDetailScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.grey.shade300),
                       ),
@@ -364,12 +355,12 @@ class TripDetailScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const Text(
-                                'Asientos disponibles',
+                                'Disponibles',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   color: Colors.grey,
                                 ),
                               ),
@@ -384,12 +375,12 @@ class TripDetailScreen extends StatelessWidget {
                             ],
                           ),
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const Text(
-                                'Asientos solicitados',
+                                'Solicitados',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   color: Colors.grey,
                                 ),
                               ),
@@ -421,7 +412,7 @@ class TripDetailScreen extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(24,16,24,18),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -442,7 +433,7 @@ class TripDetailScreen extends StatelessWidget {
                       Text(
                         'Total',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           color: Colors.grey.shade600,
                         ),
                       ),
@@ -451,7 +442,7 @@ class TripDetailScreen extends StatelessWidget {
                           trip.precioAsiento * (trip.asientosSolicitados ?? 1),
                         ),
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.primary,
                         ),
@@ -517,10 +508,19 @@ class TripDetailScreen extends StatelessWidget {
 
     // Validate if there are enough seats available
     if (trip.asientosDisponibles < seatsToRequest) {
-      _showErrorDialog(
+      if (context.mounted) {
+        Navigator.push(
           context,
-          'No hay suficientes asientos disponibles para esta solicitud.'
-      );
+          MaterialPageRoute(
+            builder: (context) => ReservationErrorScreen(
+              message: 'No hay suficientes asientos disponibles para esta solicitud.',
+              onDismiss: () {
+                Navigator.pop(context); // Close error screen
+              },
+            ),
+          ),
+        );
+      }
       return;
     }
 
@@ -541,9 +541,17 @@ class TripDetailScreen extends StatelessWidget {
       print('📥 RESERVA - Respuesta: ${success ? "Exitosa" : "Fallida"}');
 
       if (success && context.mounted) {
-        _showSuccessDialog(
-            context,
-            'Tu solicitud de reserva por $seatsToRequest ${seatsToRequest > 1 ? "asientos" : "asiento"} ha sido enviada correctamente. El conductor recibirá tu solicitud.'
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReservationSuccessScreen(
+              message: 'Solicitud de reserva por $seatsToRequest ${seatsToRequest > 1 ? "asientos" : "asiento"} enviada correctamente.\n\nEl conductor recibirá tu solicitud y te notificará cuando sea aceptada.',
+              onDismiss: () {
+                Navigator.pop(context); // Close success screen
+                Navigator.pop(context); // Return to trip list screen
+              },
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -567,12 +575,22 @@ class TripDetailScreen extends StatelessWidget {
       }
 
       if (context.mounted) {
-        _showErrorDialog(context, errorMessage);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReservationErrorScreen(
+              message: errorMessage,
+              onDismiss: () {
+                Navigator.pop(context); // Close error screen
+              },
+            ),
+          ),
+        );
       }
     }
   }
 
-  // Success dialog
+// Success dialog
   void _showSuccessDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -581,51 +599,56 @@ class TripDetailScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0), // Reduced bottom padding
           title: Row(
-            children: [
-              Icon(
-                Icons.check_circle,
-                color: Colors.green,
-                size: 28,
-              ),
-              SizedBox(width: 10),
-              Text(
-                'Solicitud enviada',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 28,
                 ),
-              ),
-            ],
-          ),
+                SizedBox(width: 10),
+                Text(
+                  'Solicitud enviada',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
           content: Text(
             message,
             style: TextStyle(
               fontSize: 16,
             ),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(2, 8, 2, 8), // Reduced vertical padding
           actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Return to trip list screen
-              },
-              child: Text(
-                'Aceptar',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Return to trip list screen
+                },
+                child: Text(
+                  'Aceptar',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
+            )
           ],
         );
       },
     );
   }
 
-  // Error dialog
+// Error dialog
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -634,25 +657,26 @@ class TripDetailScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0), // Reduced bottom padding
           backgroundColor: Colors.white,
           title: Row(
-            children: [
-              Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 28,
-              ),
-              SizedBox(width: 10),
-              Text(
-                'Error',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.red.shade700,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 28,
                 ),
-              ),
-            ],
-          ),
+                SizedBox(width: 8),
+                Text(
+                  'Error',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.redAccent,
+                  ),
+                ),
+              ],
+            ),
           content: Text(
             message,
             style: TextStyle(
@@ -660,20 +684,25 @@ class TripDetailScreen extends StatelessWidget {
               color: Colors.black87,
             ),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(0, 8, 0, 8), // Reduced vertical padding
           actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Aceptar',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.red.shade700,
-                  fontWeight: FontWeight.bold,
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(); // Return to trip list screen
+                },
+                child: Text(
+                  'Aceptar',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
+            )
           ],
         );
       },
