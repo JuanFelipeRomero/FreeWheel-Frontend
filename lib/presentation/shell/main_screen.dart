@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freewheel_frontend/data/services/auth_service.dart';
+import 'package:freewheel_frontend/data/state/trip_state.dart';
+import 'package:freewheel_frontend/presentation/screens/active_trip_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/driver_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/home_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/profile_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/search_trips_screen.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -32,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  List<Widget> _getWidgetOptions() {
+  List<Widget> _getWidgetOptions(TripState tripState) {
     final List<Widget> options = [
       const HomeScreen(),
       const SearchTripsScreen(),
@@ -49,15 +52,25 @@ class _MainScreenState extends State<MainScreen> {
     return options;
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  void _onItemTapped(int index, TripState tripState) {
+    if (index == 0 && tripState.isTripActive && tripState.activeTrip != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ActiveTripScreen(trip: tripState.activeTrip!),
+        ),
+      );
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> widgetOptions = _getWidgetOptions();
+    final tripState = Provider.of<TripState>(context);
+    final List<Widget> widgetOptions = _getWidgetOptions(tripState);
 
     return Scaffold(
       body: Center(child: widgetOptions.elementAt(_selectedIndex)),
@@ -73,12 +86,14 @@ class _MainScreenState extends State<MainScreen> {
         type: BottomNavigationBarType.fixed,
 
         items: [
-          const BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: FaIcon(
-              FontAwesomeIcons.house,
+              tripState.isTripActive
+                  ? FontAwesomeIcons.route
+                  : FontAwesomeIcons.house,
               size: _iconSize,
             ),
-            label: 'Inicio',
+            label: tripState.isTripActive ? 'Viaje en curso' : 'Inicio',
           ),
           const BottomNavigationBarItem(
             icon: FaIcon(FontAwesomeIcons.magnifyingGlass, size: _iconSize),
@@ -93,16 +108,13 @@ class _MainScreenState extends State<MainScreen> {
             ),
 
           const BottomNavigationBarItem(
-            icon: FaIcon(
-              FontAwesomeIcons.user,
-              size: _iconSize,
-            ),
+            icon: FaIcon(FontAwesomeIcons.user, size: _iconSize),
             label: 'Perfil',
           ),
         ],
 
         currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        onTap: (index) => _onItemTapped(index, tripState),
       ),
     );
   }

@@ -290,6 +290,41 @@ class TripService {
     }
   }
 
+  Future<bool> startTrip(int tripId) async {
+    try {
+      final token = await _authService.getToken();
+
+      if (token == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final url = Uri.parse('$baseUrl/viajes/$tripId/iniciar');
+
+      print('🔍 Iniciando viaje: $url');
+
+      final response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('✅ Viaje iniciado correctamente');
+        return true;
+      } else {
+        print(
+          '❌ Error al iniciar viaje: ${response.statusCode} - ${response.body}',
+        );
+        throw Exception('Failed to start trip (${response.statusCode})');
+      }
+    } catch (e) {
+      print('❌ Exception al iniciar viaje: $e');
+      rethrow;
+    }
+  }
+
   Future<List<Trip>> getDriverTrips() async {
     try {
       final userData = await _authService.getUserData();
