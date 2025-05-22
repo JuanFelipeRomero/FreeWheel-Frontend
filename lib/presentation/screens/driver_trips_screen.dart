@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/data/services/trip_service.dart';
+import 'package:freewheel_frontend/data/state/trip_state.dart';
 import 'package:freewheel_frontend/presentation/screens/active_trip_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class DriverTripsScreen extends StatefulWidget {
   const DriverTripsScreen({super.key});
@@ -81,6 +83,10 @@ class _DriverTripsScreenState extends State<DriverTripsScreen> {
             itemCount: trips.length,
             itemBuilder: (context, index) {
               final trip = trips[index];
+              final tripState = Provider.of<TripState>(context, listen: true);
+              final bool currentTripIsActive =
+                  tripState.activeTrip?.id == trip.id;
+
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
                 child: Padding(
@@ -143,55 +149,76 @@ class _DriverTripsScreenState extends State<DriverTripsScreen> {
                           ),
                           ElevatedButton(
                             onPressed: () async {
-                              // Mostrar indicador de carga
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (BuildContext context) {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                },
-                              );
-
-                              try {
-                                // Intentar iniciar el viaje
-                                final success = await _tripService.startTrip(
-                                  trip.id,
-                                );
-
-                                // Cerrar el diálogo de carga
-                                Navigator.pop(context);
-
-                                if (success) {
-                                  // Navegar a la pantalla de viaje activo
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) =>
-                                              ActiveTripScreen(trip: trip),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                // Cerrar el diálogo de carga si hay un error
-                                Navigator.pop(context);
-
-                                // Mostrar mensaje de error
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Error al iniciar viaje: $e'),
-                                    backgroundColor: Colors.red,
+                              if (currentTripIsActive &&
+                                  trip.estado == 'iniciado') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => ActiveTripScreen(
+                                          trip: tripState.activeTrip!,
+                                        ),
                                   ),
                                 );
+                              } else {
+                                if (tripState.isTripActive) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Ya tienes un viaje en curso. Finalízalo antes de iniciar uno nuevo.',
+                                      ),
+                                      backgroundColor: Colors.orangeAccent,
+                                    ),
+                                  );
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    },
+                                  );
+                                  try {
+                                    final success = await _tripService
+                                        .startTrip(trip.id);
+                                    Navigator.pop(context);
+
+                                    if (success) {
+                                      tripState.setActiveTrip(trip);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  ActiveTripScreen(trip: trip),
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Error al iniciar viaje: $e',
+                                        ),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                }
                               }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               foregroundColor: Colors.white,
                             ),
-                            child: const Text('Comenzar viaje'),
+                            child: Text(
+                              currentTripIsActive && trip.estado == 'iniciado'
+                                  ? 'Reanudar Viaje'
+                                  : 'Comenzar viaje',
+                            ),
                           ),
                         ],
                       ),
