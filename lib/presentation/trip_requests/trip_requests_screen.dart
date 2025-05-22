@@ -180,10 +180,11 @@ class _TripRequestsScreenState extends State<TripRequestsScreen> {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Text(
+                textAlign: TextAlign.center,
                 widget.tripId == null
-                    ? 'No pending requests at the moment.'
-                    : 'No pending requests for this specific trip.',
-                style: const TextStyle(fontSize: 18, color: Colors.grey),
+                    ? 'Todo despejado\nNo hay solicitudes pendientes'
+                    : 'No hay solicitudes pendientes',
+                style: const TextStyle(fontSize: 24, color: Colors.grey),
               ),
             );
           }
