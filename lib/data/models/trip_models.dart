@@ -40,10 +40,14 @@ class Trip {
   final String vehiculoColor;
   final String vehiculoTipo;
   final String vehiculoFoto;
+  int? asientosSolicitados;
 
   Trip({
     required this.id,
     required this.conductorId,
+
+    this.asientosSolicitados,
+
     required this.fecha,
     required this.horaInicio,
     required this.horaFin,
@@ -67,12 +71,16 @@ class Trip {
     required this.vehiculoColor,
     required this.vehiculoTipo,
     required this.vehiculoFoto,
+
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
     return Trip(
       id: json['id'] as int? ?? 0,
       conductorId: json['conductorId'] as int? ?? 0,
+
+      asientosSolicitados: json['asientosSolicitados'] as int? ?? 0,
+
       fecha: json['fecha'] as String? ?? '',
       horaInicio: json['horaInicio'] as String? ?? '',
       horaFin: json['horaFin'] as String? ?? '',
