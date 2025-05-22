@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/data/state/trip_state.dart';
 import 'package:provider/provider.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ActiveTripScreen extends StatefulWidget {
   final Trip trip;
@@ -60,66 +61,73 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const FaIcon(
+                FontAwesomeIcons.route,
+                size: 60,
+                color: Colors.blueAccent,
+              ),
+              const SizedBox(height: 20),
               const Text(
                 'Viaje en curso',
-                style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
               Text(
                 _formattedTime,
-                style: const TextStyle(
-                  fontSize: 80,
+                style: TextStyle(
+                  fontSize: 72,
                   fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
-              Text(
+              const SizedBox(height: 30),
+              _buildLocationRow(
+                FontAwesomeIcons.mapPin,
                 widget.trip.direccionOrigen,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
+                Colors.green,
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  'a',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
-                  textAlign: TextAlign.center,
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                child: FaIcon(
+                  FontAwesomeIcons.ellipsisVertical,
+                  size: 24,
+                  color: Colors.grey.shade400,
                 ),
               ),
-              Text(
+              _buildLocationRow(
+                FontAwesomeIcons.flagCheckered,
                 widget.trip.direccionDestino,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
+                Colors.redAccent,
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 50),
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
+                child: OutlinedButton.icon(
+                  icon: const FaIcon(FontAwesomeIcons.users, size: 18),
+                  label: const Text(
+                    'Ver pasajeros',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   onPressed: () {
                     // TODO: Implementar ver pasajeros
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Colors.black54, width: 1.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                    side: BorderSide(
+                      color: Theme.of(context).primaryColorDark,
+                      width: 1.5,
                     ),
-                  ),
-                  child: const Text(
-                    'Ver pasajeros',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                    foregroundColor: Theme.of(context).primaryColorDark,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
@@ -127,9 +135,16 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
+                  icon: const FaIcon(
+                    FontAwesomeIcons.solidCircleCheck,
+                    size: 20,
+                  ),
+                  label: const Text(
+                    'Finalizar viaje',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   onPressed: () {
-                    // Implementar finalizar viaje
                     Provider.of<TripState>(
                       context,
                       listen: false,
@@ -140,22 +155,43 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.redAccent,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                  child: const Text(
-                    'Finalizar viaje',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    elevation: 4,
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLocationRow(IconData icon, String location, Color iconColor) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        FaIcon(icon, size: 22, color: iconColor),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            location,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: Colors.black54,
+            ),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+          ),
+        ),
+      ],
     );
   }
 }
