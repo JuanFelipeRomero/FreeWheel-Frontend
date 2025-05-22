@@ -22,6 +22,7 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
   DateTime? _selectedDate;
   int _numberOfSeats = 1;
 
+
   // --- Variables de Estado para Lugares (ACTUALIZADAS) ---
   PlaceResult? _originResult; // Guarda el resultado completo del origen
   PlaceResult? _destinationResult; // Guarda el resultado completo del destino
@@ -214,10 +215,13 @@ class _SearchTripsScreenState extends State<SearchTripsScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder:
-                                        (context) => TripListScreen(
-                                          trips: response.trips,
-                                        ),
+                                    builder: (context) => TripListScreen(
+                                      trips: response.trips.map((trip) {
+                                        // Add the requested seats count to each trip
+                                        trip.asientosSolicitados = _numberOfSeats;
+                                        return trip;
+                                      }).toList(),
+                                    ),
                                   ),
                                 );
                               } else {

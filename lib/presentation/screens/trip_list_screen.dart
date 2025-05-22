@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/presentation/screens/passenger_profile_screen.dart';
 
+import '../../data/services/trip_service.dart';
+
 class TripListScreen extends StatelessWidget {
   final List<Trip> trips;
 
@@ -399,7 +401,7 @@ class TripListScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Implementar acción para reservar
+                  _reserveSeat(context, trip);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
@@ -451,6 +453,97 @@ class TripListScreen extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+
+
+
+  // Add this method to the TripListScreen class
+  void _reserveSeat(BuildContext context, Trip trip) async {
+    final TripService tripService = TripService();
+
+    // Get the number of seats requested by the user during search
+    // If the trip doesn't have the requested seats info, default to 1
+    final int seatsToRequest = trip.asientosSolicitados ?? 1;
+
+    // Validate if there are enough seats available
+    if (trip.asientosDisponibles < seatsToRequest) {
+      _showDialog(
+          context,
+          'No hay suficientes asientos',
+          'Lo sentimos, no hay suficientes asientos disponibles para esta solicitud.',
+          isError: true
+      );
+      return;
+    }
+
+    // Log the data that will be sent in the request
+    print('📤 RESERVA - Enviando solicitud con datos:');
+    print('📤 RESERVA - Viaje ID: ${trip.id}');
+    print('📤 RESERVA - Asientos solicitados: $seatsToRequest');
+    print('📤 RESERVA - Origen: ${trip.direccionOrigen}');
+    print('📤 RESERVA - Destino: ${trip.direccionDestino}');
+    print('📤 RESERVA - Conductor: ${trip.nombreConductor} ${trip.apellidoConductor} (ID: ${trip.conductorId})');
+
+    try {
+      final bool success = await tripService.requestSeatReservation(
+        tripId: trip.id,
+        seatsRequested: seatsToRequest,
+      );
+
+      print('📥 RESERVA - Respuesta: ${success ? "Exitosa" : "Fallida"}');
+
+      if (success) {
+        _showDialog(
+            context,
+            'Solicitud enviada',
+            'Tu solicitud de reserva por $seatsToRequest ${seatsToRequest > 1 ? "asientos" : "asiento"} ha sido enviada correctamente. El conductor recibirá tu solicitud.'
+        );
+      }
+    } catch (e) {
+      print('❌ RESERVA - Error: $e');
+      _showDialog(
+          context,
+          'Error',
+          'No se pudo procesar tu solicitud: ${e.toString()}',
+          isError: true
+      );
+    }
+  }
+
+  // Helper method to show dialogs
+  void _showDialog(BuildContext context, String title, String message, {bool isError = false}) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          backgroundColor: isError ? Colors.red.shade50 : Colors.white,
+          titleTextStyle: TextStyle(
+            color: isError ? Colors.red.shade700 : Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+          contentTextStyle: TextStyle(
+            color: isError ? Colors.red.shade700 : Colors.black87,
+            fontSize: 16,
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Aceptar',
+                style: TextStyle(
+                  color: isError ? Colors.red.shade700 : Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
