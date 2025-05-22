@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/data/services/trip_service.dart';
+import 'package:freewheel_frontend/presentation/screens/active_trip_screen.dart';
 import 'package:intl/intl.dart';
 
 class DriverTripsScreen extends StatefulWidget {
@@ -141,8 +142,50 @@ class _DriverTripsScreenState extends State<DriverTripsScreen> {
                             ],
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                              // TODO: Implement start trip functionality
+                            onPressed: () async {
+                              // Mostrar indicador de carga
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                },
+                              );
+
+                              try {
+                                // Intentar iniciar el viaje
+                                final success = await _tripService.startTrip(
+                                  trip.id,
+                                );
+
+                                // Cerrar el diálogo de carga
+                                Navigator.pop(context);
+
+                                if (success) {
+                                  // Navegar a la pantalla de viaje activo
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              ActiveTripScreen(trip: trip),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                // Cerrar el diálogo de carga si hay un error
+                                Navigator.pop(context);
+
+                                // Mostrar mensaje de error
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error al iniciar viaje: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
