@@ -368,6 +368,39 @@ class TripService {
     }
   }
 
+  Future<bool> cancelTrip(int tripId) async {
+    try {
+      final token = await _authService.getToken();
+
+      if (token == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final url = Uri.parse('$baseUrl/viajes/cancelar-conductor/$tripId');
+
+      print('🔍 Cancelando viaje: $url');
+
+      final response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print("✅ Viaje cancelado correctamente");
+        return true;
+      } else {
+        print('❌ Error al cancelar viaje: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to cancel trip (${response.statusCode})');
+      }
+    } catch (e) {
+      print('❌ Exception al cancelar viaje: $e');
+      rethrow;
+    }
+  }
+
   Future<List<Trip>> getDriverTrips() async {
     try {
       final userData = await _authService.getUserData();

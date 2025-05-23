@@ -9,6 +9,8 @@ import 'package:freewheel_frontend/presentation/screens/profile_screen.dart';
 import 'package:freewheel_frontend/presentation/screens/search_trips_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../activity_screens/activity_screen.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -39,6 +41,7 @@ class _MainScreenState extends State<MainScreen> {
     final List<Widget> options = [
       const HomeScreen(),
       const SearchTripsScreen(),
+      const ActivityScreen(), // Add the new Activity screen
     ];
 
     // Add conductor screen only if user is a driver
@@ -98,6 +101,11 @@ class _MainScreenState extends State<MainScreen> {
           const BottomNavigationBarItem(
             icon: FaIcon(FontAwesomeIcons.magnifyingGlass, size: _iconSize),
             label: 'Buscar',
+          ),
+          
+          const BottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.bell, size: _iconSize),
+            label: 'Actividad'
           ),
 
           // Conditionally add the conductor item if user is a driver

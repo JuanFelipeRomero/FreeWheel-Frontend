@@ -87,6 +87,7 @@ class _DriverTripsScreenState extends State<DriverTripsScreen> {
               final tripState = Provider.of<TripState>(context, listen: true);
               final bool currentTripIsActive =
                   tripState.activeTrip?.id == trip.id;
+              final bool isCanceled = trip.estado == 'CANCELADO';
 
               // Determine button style and text based on trip status
               String buttonText = 'Comenzar viaje';
@@ -203,155 +204,322 @@ class _DriverTripsScreenState extends State<DriverTripsScreen> {
                 margin: const EdgeInsets.only(bottom: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: Colors.grey.shade300),
+                  side: BorderSide(
+                      color: isCanceled ? Colors.grey.shade400 : Colors.grey.shade300
+                  ),
                 ),
-                elevation: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const FaIcon(
-                            FontAwesomeIcons.mapMarkerAlt,
-                            color: Colors.blue,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
+                elevation: isCanceled ? 1 : 3,
+                color: isCanceled ? Colors.grey.shade200 : null,
+                child: Opacity(
+                  opacity: isCanceled ? 0.7 : 1.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.mapMarkerAlt,
+                              color: isCanceled ? Colors.grey : Colors.blue,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'De: ${trip.direccionOrigen}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: isCanceled ? Colors.grey.shade700 : Colors.black,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'A: ${trip.direccionDestino}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: isCanceled ? Colors.grey.shade700 : Colors.black,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              isCanceled ? 'Cancelado' :
+                              trip.estado == 'finalizado'
+                                  ? 'Completado'
+                                  : trip.estado == 'iniciado'
+                                  ? 'En curso'
+                                  : 'Programado',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color:
+                                isCanceled ? Colors.grey :
+                                trip.estado == 'finalizado'
+                                    ? Colors.grey
+                                    : trip.estado == 'iniciado'
+                                    ? Colors.blueAccent
+                                    : Colors.orangeAccent,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        const Divider(),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'De: ${trip.direccionOrigen}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                                Row(
+                                  children: [
+                                    FaIcon(
+                                      FontAwesomeIcons.calendarAlt,
+                                      size: 14,
+                                      color: isCanceled ? Colors.grey : Colors.black54,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      DateFormat('dd/MM/yyyy').format(DateTime.parse(trip.fecha)),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: isCanceled ? Colors.grey : Colors.black87,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'A: ${trip.direccionDestino}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    FaIcon(
+                                      FontAwesomeIcons.clock,
+                                      size: 14,
+                                      color: isCanceled ? Colors.grey : Colors.black54,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      trip.horaInicio,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: isCanceled ? Colors.grey : Colors.black87,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            trip.estado == 'finalizado'
-                                ? 'Completado'
-                                : trip.estado == 'iniciado'
-                                ? 'En curso'
-                                : 'Programado',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              color:
-                                  trip.estado == 'finalizado'
-                                      ? Colors.grey
-                                      : trip.estado == 'iniciado'
-                                      ? Colors.blueAccent
-                                      : Colors.orangeAccent,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      const Divider(),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const FaIcon(
-                                    FontAwesomeIcons.calendarAlt,
-                                    size: 14,
-                                    color: Colors.black54,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    DateFormat(
-                                      'dd/MM/yyyy',
-                                    ).format(DateTime.parse(trip.fecha)),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ],
+                            Text(
+                              '\\\$${trip.precioAsiento.toStringAsFixed(0)}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: isCanceled ? Colors.grey : Colors.green,
                               ),
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  const FaIcon(
-                                    FontAwesomeIcons.clock,
-                                    size: 14,
-                                    color: Colors.black54,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    trip.horaInicio,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          Text(
-                            '\\\$${trip.precioAsiento.toStringAsFixed(0)}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              color: Colors.green,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          icon: FaIcon(
-                            onPressed == null
-                                ? FontAwesomeIcons.checkCircle
-                                : currentTripIsActive &&
-                                    trip.estado == 'iniciado'
-                                ? FontAwesomeIcons.playCircle
-                                : FontAwesomeIcons.play,
-                            size: 18,
-                          ),
-                          label: Text(buttonText),
-                          onPressed: onPressed,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: buttonColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            textStyle: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
+                          ],
                         ),
-                      ),
-                    ],
+
+                        // Only show buttons for non-canceled trips
+                        if (!isCanceled) ...[
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              icon: FaIcon(
+                                onPressed == null
+                                    ? FontAwesomeIcons.checkCircle
+                                    : currentTripIsActive && trip.estado == 'iniciado'
+                                    ? FontAwesomeIcons.playCircle
+                                    : FontAwesomeIcons.play,
+                                size: 18,
+                              ),
+                              label: Text(buttonText),
+                              onPressed: onPressed,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: buttonColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                textStyle: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // Show cancel button only when trip is not started or finished
+                          if (trip.estado != 'iniciado' && trip.estado != 'finalizado')
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  icon: const FaIcon(
+                                    FontAwesomeIcons.ban,
+                                    size: 18,
+                                  ),
+                                  label: const Text('Cancelar viaje'),
+                                  onPressed: () async {
+                                    // Show confirmation dialog
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Center(
+                                          child: Text(
+                                            'Cancelar Viaje',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                        ),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const SizedBox(height: 8),
+                                            Container(
+                                              width: 70,
+                                              height: 70,
+                                              decoration: const BoxDecoration(
+                                                color: Colors.amber,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.warning_rounded,
+                                                  size: 40,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 24),
+                                            const Text(
+                                              '¿Seguro que quieres cancelar?',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        actions: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: TextButton(
+                                                  onPressed: () => Navigator.pop(context, false),
+                                                  style: TextButton.styleFrom(
+                                                    backgroundColor: Colors.blue,
+                                                    foregroundColor: Colors.white,
+                                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    'Volver',
+                                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: TextButton(
+                                                  onPressed: () => Navigator.pop(context, true),
+                                                  style: TextButton.styleFrom(
+                                                    backgroundColor: Colors.redAccent,
+                                                    foregroundColor: Colors.white,
+                                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                  ),
+                                                  child: const Text(
+                                                    'Cancelar',
+                                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+                                        actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                                      ),
+                                    );
+
+                                    if (confirm == true) {
+                                      try {
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (BuildContext context) {
+                                            return const Center(child: CircularProgressIndicator());
+                                          },
+                                        );
+
+                                        await _tripService.cancelTrip(trip.id);
+
+                                        Navigator.pop(context); // Close loading dialog
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Viaje cancelado correctamente'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+
+                                        // Refresh trips list
+                                        setState(() {
+                                          _tripsFuture = _tripService.getDriverTrips();
+                                        });
+                                      } catch (e) {
+                                        Navigator.pop(context); // Close loading dialog
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Error al cancelar viaje: $e'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
               );
