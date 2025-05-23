@@ -152,7 +152,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                         builder:
                             (context) => FinalizeTripScreen(
                               trip: widget.trip,
-                              totalAmount: 12000.0,
+                              totalAmount: widget.trip.precioAsiento,
                             ),
                       ),
                     );
