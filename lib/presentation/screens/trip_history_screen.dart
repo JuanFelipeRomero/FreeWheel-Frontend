@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/data/services/trip_service.dart';
 import 'package:freewheel_frontend/data/services/auth_service.dart';
+import 'package:freewheel_frontend/presentation/screens/rate_trip_screen.dart';
 import 'package:intl/intl.dart';
 
 class TripHistoryScreen extends StatefulWidget {
@@ -15,10 +16,10 @@ class TripHistoryScreen extends StatefulWidget {
 class _TripHistoryScreenState extends State<TripHistoryScreen> {
   final TripService _tripService = TripService();
   final AuthService _authService = AuthService();
-
   List<Trip> _trips = [];
   bool _isLoading = true;
   String? _errorMessage;
+  Map<int, bool> _tripRatingStatus = {}; // Track which trips have been rated
 
   @override
   void initState() {
@@ -48,12 +49,39 @@ class _TripHistoryScreenState extends State<TripHistoryScreen> {
         _trips = trips;
         _isLoading = false;
       });
+
+      // Check rating status for completed trips
+      await _checkRatingStatusForTrips(trips);
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _checkRatingStatusForTrips(List<Trip> trips) async {
+    for (final trip in trips) {
+      if (_isTripCompleted(trip.estado)) {
+        try {
+          final hasRated = await _tripService.hasRatedTrip(trip.id);
+          setState(() {
+            _tripRatingStatus[trip.id] = hasRated;
+          });
+        } catch (e) {
+          print('Error checking rating status for trip ${trip.id}: $e');
+          // In case of error, assume it's not rated to show the button
+          setState(() {
+            _tripRatingStatus[trip.id] = false;
+          });
+        }
+      }
+    }
+  }
+
+  bool _isTripCompleted(String estado) {
+    return estado.toUpperCase() == 'COMPLETADO' ||
+        estado.toUpperCase() == 'FINALIZADO';
   }
 
   @override
@@ -215,6 +243,13 @@ class _TripHistoryScreenState extends State<TripHistoryScreen> {
       print('Error parsing date: ${trip.fecha}');
     }
 
+    // Check if trip is completed and needs rating
+    final isCompleted = _isTripCompleted(trip.estado);
+    final hasRated =
+        _tripRatingStatus[trip.id] ??
+        true; // Default to true to hide button until we know for sure
+    final shouldShowRatingButton = isCompleted && !hasRated;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(
@@ -373,12 +408,46 @@ class _TripHistoryScreenState extends State<TripHistoryScreen> {
                     ),
                   ],
                 ),
+                // Rating button for completed trips
+                if (shouldShowRatingButton) ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _showRatingDialog(trip),
+                      icon: const Icon(FontAwesomeIcons.star, size: 16),
+                      label: const Text('Calificar viaje'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.amber.shade600,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _showRatingDialog(Trip trip) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (context) => RateTripScreen(trip: trip)),
+    );
+
+    // Si la calificación fue exitosa, actualizar el estado local
+    if (result == true) {
+      setState(() {
+        _tripRatingStatus[trip.id] = true; // Marcar como calificado
+      });
+    }
   }
 
   Color _getStatusColor(String estado) {
