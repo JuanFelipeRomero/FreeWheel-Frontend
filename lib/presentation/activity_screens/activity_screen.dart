@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:freewheel_frontend/presentation/screens/trip_history_screen.dart';
 
 class ActivityScreen extends StatelessWidget {
   const ActivityScreen({super.key});
@@ -7,10 +8,7 @@ class ActivityScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(''),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text(''), elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -21,10 +19,7 @@ class ActivityScreen extends StatelessWidget {
               child: const Text(
                 'Actividad',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
             ),
 
@@ -33,10 +28,7 @@ class ActivityScreen extends StatelessWidget {
             Center(
               child: const Text(
                 'Administra tu actividad en FreeWheel',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
             ),
 
@@ -52,10 +44,12 @@ class ActivityScreen extends StatelessWidget {
                     FontAwesomeIcons.route,
                     'Viajes activos',
                     'Ver tus viajes en curso',
-                        () {
+                    () {
                       // Navigate to active trips screen
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Viajes activos seleccionados')),
+                        const SnackBar(
+                          content: Text('Viajes activos seleccionados'),
+                        ),
                       );
                     },
                   ),
@@ -68,10 +62,13 @@ class ActivityScreen extends StatelessWidget {
                     FontAwesomeIcons.clockRotateLeft,
                     'Historial',
                     'Ver viajes pasados',
-                        () {
+                    () {
                       // Navigate to history screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Historial seleccionado')),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TripHistoryScreen(),
+                        ),
                       );
                     },
                   ),
@@ -80,7 +77,6 @@ class ActivityScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 32),
-
           ],
         ),
       ),
@@ -88,22 +84,19 @@ class ActivityScreen extends StatelessWidget {
   }
 
   Widget _buildServiceCard(
-      BuildContext context,
-      IconData icon,
-      String title,
-      String description,
-      VoidCallback onTap,
-      ) {
+    BuildContext context,
+    IconData icon,
+    String title,
+    String description,
+    VoidCallback onTap,
+  ) {
     return Container(
       height: 220, // Fixed height for consistent card size
       child: Card(
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: Colors.grey.shade300,
-            width: 1,
-          ),
+          side: BorderSide(color: Colors.grey.shade300, width: 1),
         ),
         color: Colors.grey.shade50,
         child: InkWell(
@@ -140,10 +133,7 @@ class ActivityScreen extends StatelessWidget {
                 Text(
                   description,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
               ],
             ),

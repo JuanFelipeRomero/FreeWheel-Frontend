@@ -392,7 +392,9 @@ class TripService {
         print("✅ Viaje cancelado correctamente");
         return true;
       } else {
-        print('❌ Error al cancelar viaje: ${response.statusCode} - ${response.body}');
+        print(
+          '❌ Error al cancelar viaje: ${response.statusCode} - ${response.body}',
+        );
         throw Exception('Failed to cancel trip (${response.statusCode})');
       }
     } catch (e) {
@@ -436,6 +438,50 @@ class TripService {
     } catch (e) {
       print('Error fetching driver trips: $e');
       rethrow;
+    }
+  }
+
+  // Method to get trip history for a user
+  Future<List<Trip>> getTripHistory({
+    required int userId,
+    required bool esConductor,
+  }) async {
+    final token = await _authService.getToken();
+
+    if (token == null) {
+      print('User not authenticated or token is missing.');
+      throw Exception('User not authenticated. Cannot fetch trip history.');
+    }
+
+    final url = Uri.parse(
+      '$baseUrl/viajes/listar?userId=$userId&esConductor=$esConductor',
+    );
+    print('🔍 Fetching trip history from: $url');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        print('✅ Trip history received: ${response.body}');
+        return data
+            .map((jsonItem) => Trip.fromJson(jsonItem as Map<String, dynamic>))
+            .toList();
+      } else {
+        print(
+          '❌ Error fetching trip history: ${response.statusCode} - ${response.body}',
+        );
+        throw Exception('Failed to fetch trip history: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Exception during trip history fetch: $e');
+      throw Exception('Error connecting to the server: $e');
     }
   }
 }
