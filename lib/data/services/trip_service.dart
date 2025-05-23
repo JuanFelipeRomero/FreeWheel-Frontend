@@ -96,7 +96,7 @@ class TripService {
     }
   }
 
-// Method to request seat reservation
+  // Method to request seat reservation
   Future<bool> requestSeatReservation({
     required int tripId,
     required int seatsRequested,
@@ -106,7 +106,9 @@ class TripService {
 
     if (userData == null || token == null) {
       print('User not authenticated or user data/token is missing.');
-      throw Exception('User not authenticated. Cannot request seat reservation.');
+      throw Exception(
+        'User not authenticated. Cannot request seat reservation.',
+      );
     }
 
     final userId = userData['id'];
@@ -138,7 +140,9 @@ class TripService {
         print('✅ Seat reservation requested successfully.');
         return true;
       } else {
-        print('❌ Error requesting seat reservation: ${response.statusCode} - ${response.body}');
+        print(
+          '❌ Error requesting seat reservation: ${response.statusCode} - ${response.body}',
+        );
         throw Exception('Failed to request seat reservation: ${response.body}');
       }
     } catch (e) {
@@ -269,11 +273,9 @@ class TripService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        // body: jsonEncode({'status': 'RECHAZADO'}), // Or whatever body the API expects, if any
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        // 204 No Content is also a success
         print('✅ Trip request $requestId rejected successfully.');
         return true;
       } else {
@@ -286,6 +288,47 @@ class TripService {
       }
     } catch (e) {
       print('❌ Exception during rejecting trip request $requestId: $e');
+      throw Exception('Error connecting to the server: $e');
+    }
+  }
+
+  // Method to finalize a trip
+  Future<void> finalizeTrip(int tripId) async {
+    final token = await _authService.getToken();
+    if (token == null) {
+      print('User not authenticated or token is missing.');
+      // Consider throwing a specific exception type for auth errors
+      throw Exception('User not authenticated. Cannot finalize trip.');
+    }
+
+    final url = Uri.parse('$baseUrl/viajes/$tripId/finalizar');
+    print('📢 Finalizing trip: PUT to $url');
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        // body: jsonEncode({}), // Add body if required by your API
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('✅ Trip $tripId finalized successfully.');
+        // No specific data needs to be returned, void is fine.
+      } else {
+        print(
+          '❌ Error finalizing trip $tripId: ${response.statusCode} - ${response.body}',
+        );
+        // Consider creating custom exception types for different API errors
+        throw Exception(
+          'Failed to finalize trip (${response.statusCode}): ${response.body}',
+        );
+      }
+    } catch (e) {
+      print('❌ Exception during finalizing trip $tripId: $e');
+      // Rethrow the exception to be caught by the caller, or handle specific network errors
       throw Exception('Error connecting to the server: $e');
     }
   }
