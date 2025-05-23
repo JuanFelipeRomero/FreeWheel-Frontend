@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/data/state/trip_state.dart';
+import 'package:freewheel_frontend/presentation/screens/finalize_trip_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -145,13 +146,16 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   onPressed: () {
-                    Provider.of<TripState>(
+                    Navigator.push(
                       context,
-                      listen: false,
-                    ).clearActiveTrip();
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    }
+                      MaterialPageRoute(
+                        builder:
+                            (context) => FinalizeTripScreen(
+                              trip: widget.trip,
+                              totalAmount: 12000.0,
+                            ),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
