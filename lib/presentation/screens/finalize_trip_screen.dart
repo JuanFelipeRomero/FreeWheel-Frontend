@@ -65,8 +65,7 @@ class _FinalizeTripScreenState extends State<FinalizeTripScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final formattedAmount =
-        '\$${widget.totalAmount.toStringAsFixed(3).replaceAll('.', ',')}';
+    final formattedAmount = '\$${widget.totalAmount.toStringAsFixed(0)}';
 
     return Scaffold(
       appBar: AppBar(
@@ -88,7 +87,7 @@ class _FinalizeTripScreenState extends State<FinalizeTripScreen> {
             children: [
               const Spacer(),
               const Text(
-                'Total a pagar',
+                'Cada pasajero debe pagar',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,

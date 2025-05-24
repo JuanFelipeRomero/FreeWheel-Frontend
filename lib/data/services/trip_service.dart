@@ -395,7 +395,9 @@ class TripService {
         print("✅ Viaje cancelado correctamente");
         return true;
       } else {
-        print('❌ Error al cancelar viaje: ${response.statusCode} - ${response.body}');
+        print(
+          '❌ Error al cancelar viaje: ${response.statusCode} - ${response.body}',
+        );
         throw Exception('Failed to cancel trip (${response.statusCode})');
       }
     } catch (e) {
@@ -442,6 +444,166 @@ class TripService {
     }
   }
 
+  // Method to get trip history for a user
+  Future<List<Trip>> getTripHistory({
+    required int userId,
+    required bool esConductor,
+  }) async {
+    final token = await _authService.getToken();
+
+    if (token == null) {
+      print('User not authenticated or token is missing.');
+      throw Exception('User not authenticated. Cannot fetch trip history.');
+    }
+
+    final url = Uri.parse(
+      '$baseUrl/viajes/listar?userId=$userId&esConductor=$esConductor',
+    );
+    print('🔍 Fetching trip history from: $url');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        print('✅ Trip history received: ${response.body}');
+        return data
+            .map((jsonItem) => Trip.fromJson(jsonItem as Map<String, dynamic>))
+            .toList();
+      } else {
+        print(
+          '❌ Error fetching trip history: ${response.statusCode} - ${response.body}',
+        );
+        throw Exception('Failed to fetch trip history: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Exception during trip history fetch: $e');
+      throw Exception('Error connecting to the server: $e');
+    }
+  }
+
+  // Method to check if user has rated a trip
+  Future<bool> hasRatedTrip(int tripId) async {
+    final userData = await _authService.getUserData();
+    final token = await _authService.getToken();
+
+    if (token == null || userData == null) {
+      print('User not authenticated or token/data is missing.');
+      throw Exception('User not authenticated. Cannot check trip rating.');
+    }
+
+    final userId = userData['id'];
+    if (userId == null) {
+      print('User ID not found in user data.');
+      throw Exception('User ID not found. Cannot check trip rating.');
+    }
+
+    // Debug token and user info
+    print('🔐 Token for rating check: ${token.substring(0, 20)}...');
+    print('🔍 User ID: $userId');
+
+    // Try both URL formats - with and without userId parameter
+    final url = Uri.parse(
+      '$baseUrl/calificaciones/viaje/$tripId/ha-calificado',
+    );
+    print('🔍 Checking if trip $tripId has been rated: $url');
+
+    try {
+      final headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      };
+
+      print('🔍 Headers being sent: $headers');
+
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(
+          utf8.decode(response.bodyBytes),
+        );
+        print('✅ Trip rating check received: ${response.body}');
+        return data['haCalificado'] as bool? ?? false;
+      } else {
+        print(
+          '❌ Error checking trip rating: ${response.statusCode} - ${response.body}',
+        );
+        print('🔍 Response headers: ${response.headers}');
+
+        // Try to get more info from response body
+        String responseBody = '';
+        try {
+          responseBody = utf8.decode(response.bodyBytes);
+        } catch (e) {
+          responseBody = response.body;
+        }
+
+        print('🔍 Full response body: $responseBody');
+        throw Exception(
+          'Failed to check trip rating (${response.statusCode}): $responseBody',
+        );
+      }
+    } catch (e) {
+      print('❌ Exception during trip rating check: $e');
+      throw Exception('Error connecting to the server: $e');
+    }
+  }
+
+  // Method to submit a trip rating
+  Future<bool> submitTripRating({
+    required int tripId,
+    required int rating,
+    required String comment,
+  }) async {
+    final token = await _authService.getToken();
+
+    if (token == null) {
+      print('User not authenticated or token is missing.');
+      throw Exception('User not authenticated. Cannot submit trip rating.');
+    }
+
+    final url = Uri.parse('$baseUrl/calificaciones');
+    print('📝 Submitting trip rating: POST to $url');
+
+    final Map<String, dynamic> requestBody = {
+      "viajeId": tripId,
+      "puntuacion": rating,
+      "comentario": comment,
+    };
+
+    print('📝 Rating data: ${jsonEncode(requestBody)}');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('✅ Trip rating submitted successfully.');
+        return true;
+      } else {
+        print(
+          '❌ Error submitting trip rating: ${response.statusCode} - ${response.body}',
+        );
+        throw Exception('Failed to submit trip rating: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Exception during trip rating submission: $e');
+      throw Exception('Error connecting to the server: $e');
+    }
+  }
+
   // Method to fetch passenger trips for current user
   Future<List<PassengerTrip>> getPassengerTrips() async {
     try {
@@ -469,7 +631,9 @@ class TripService {
         print('Response body: ${response.body}');
 
         // Check if the response is a map or list
-        final dynamic decodedData = json.decode(utf8.decode(response.bodyBytes));
+        final dynamic decodedData = json.decode(
+          utf8.decode(response.bodyBytes),
+        );
 
         if (decodedData is Map<String, dynamic>) {
           // If it's a map, extract the data array (adjust according to your API structure)
@@ -482,12 +646,16 @@ class TripService {
           }
         } else if (decodedData is List<dynamic>) {
           // If it's already a list, use it directly
-          return decodedData.map((json) => PassengerTrip.fromJson(json)).toList();
+          return decodedData
+              .map((json) => PassengerTrip.fromJson(json))
+              .toList();
         } else {
           throw Exception('Unexpected response format: neither Map nor List');
         }
       } else {
-        throw Exception('Failed to load passenger trips (${response.statusCode}): ${response.body}');
+        throw Exception(
+          'Failed to load passenger trips (${response.statusCode}): ${response.body}',
+        );
       }
     } catch (e) {
       print('Error fetching passenger trips: $e');
@@ -511,11 +679,12 @@ class TripService {
       throw Exception('User ID not found. Cannot cancel reservation.');
     }
 
-    final url = Uri.parse('$baseUrl/pasajeros/eliminar')
-        .replace(queryParameters: {
-      'usuarioId': userId.toString(),
-      'viajeId': tripId.toString(),
-    });
+    final url = Uri.parse('$baseUrl/pasajeros/eliminar').replace(
+      queryParameters: {
+        'usuarioId': userId.toString(),
+        'viajeId': tripId.toString(),
+      },
+    );
 
     print('🗑️ Canceling reservation: DELETE to $url');
 
@@ -532,13 +701,16 @@ class TripService {
         print('✅ Reservation canceled successfully.');
         return true;
       } else {
-        print('❌ Error canceling reservation: ${response.statusCode} - ${response.body}');
-        throw Exception('Failed to cancel reservation (${response.statusCode}): ${response.body}');
+        print(
+          '❌ Error canceling reservation: ${response.statusCode} - ${response.body}',
+        );
+        throw Exception(
+          'Failed to cancel reservation (${response.statusCode}): ${response.body}',
+        );
       }
     } catch (e) {
       print('❌ Exception during reservation cancellation: $e');
       throw Exception('Error connecting to the server: $e');
     }
   }
-
 }
