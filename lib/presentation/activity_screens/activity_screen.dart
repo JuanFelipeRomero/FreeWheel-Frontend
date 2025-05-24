@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:freewheel_frontend/presentation/activity_screens/active_trips_screen.dart';
+
 
 class ActivityScreen extends StatelessWidget {
   const ActivityScreen({super.key});
@@ -53,10 +55,12 @@ class ActivityScreen extends StatelessWidget {
                     'Viajes activos',
                     'Ver tus viajes en curso',
                         () {
-                      // Navigate to active trips screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Viajes activos seleccionados')),
-                      );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ActiveTripsScreen(),
+                            ),
+                          );
                     },
                   ),
                 ),

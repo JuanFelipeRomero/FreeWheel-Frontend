@@ -7,6 +7,9 @@ import 'package:freewheel_frontend/data/models/trip_models.dart';
 import 'package:freewheel_frontend/data/models/trip_request.dart';
 import 'package:freewheel_frontend/data/services/auth_service.dart';
 
+import '../../presentation/activity_screens/active_trips_screen.dart';
+import '../models/passenger_trips_models.dart';
+
 class TripService {
   // URL base configurada desde las variables de entorno
   final String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:8000';
@@ -438,4 +441,104 @@ class TripService {
       rethrow;
     }
   }
+
+  // Method to fetch passenger trips for current user
+  Future<List<PassengerTrip>> getPassengerTrips() async {
+    try {
+      final userData = await _authService.getUserData();
+      final userId = userData?['id'];
+      final token = await _authService.getToken();
+
+      if (userId == null) {
+        throw Exception('User ID not available');
+      }
+
+      final url = Uri.parse('$baseUrl/pasajeros/viajes-usuario/$userId');
+      print('🔍 Fetching passenger trips with URL: $url');
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Debug the response
+        print('Response body: ${response.body}');
+
+        // Check if the response is a map or list
+        final dynamic decodedData = json.decode(utf8.decode(response.bodyBytes));
+
+        if (decodedData is Map<String, dynamic>) {
+          // If it's a map, extract the data array (adjust according to your API structure)
+          if (decodedData.containsKey('data') && decodedData['data'] is List) {
+            final List<dynamic> data = decodedData['data'];
+            return data.map((json) => PassengerTrip.fromJson(json)).toList();
+          } else {
+            // If there's no 'data' key but it's still a map
+            throw Exception('Unexpected response format: no data array found');
+          }
+        } else if (decodedData is List<dynamic>) {
+          // If it's already a list, use it directly
+          return decodedData.map((json) => PassengerTrip.fromJson(json)).toList();
+        } else {
+          throw Exception('Unexpected response format: neither Map nor List');
+        }
+      } else {
+        throw Exception('Failed to load passenger trips (${response.statusCode}): ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching passenger trips: $e');
+      rethrow;
+    }
+  }
+
+  // Add this method to lib/data/services/trip_service.dart
+  Future<bool> cancelReservation({required int tripId}) async {
+    final userData = await _authService.getUserData();
+    final token = await _authService.getToken();
+
+    if (userData == null || token == null) {
+      print('User not authenticated or user data/token is missing.');
+      throw Exception('User not authenticated. Cannot cancel reservation.');
+    }
+
+    final userId = userData['id'];
+    if (userId == null) {
+      print('User ID not found in user data.');
+      throw Exception('User ID not found. Cannot cancel reservation.');
+    }
+
+    final url = Uri.parse('$baseUrl/pasajeros/eliminar')
+        .replace(queryParameters: {
+      'usuarioId': userId.toString(),
+      'viajeId': tripId.toString(),
+    });
+
+    print('🗑️ Canceling reservation: DELETE to $url');
+
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print('✅ Reservation canceled successfully.');
+        return true;
+      } else {
+        print('❌ Error canceling reservation: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to cancel reservation (${response.statusCode}): ${response.body}');
+      }
+    } catch (e) {
+      print('❌ Exception during reservation cancellation: $e');
+      throw Exception('Error connecting to the server: $e');
+    }
+  }
+
 }
