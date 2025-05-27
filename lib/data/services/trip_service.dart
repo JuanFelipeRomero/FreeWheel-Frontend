@@ -19,8 +19,7 @@ class TripService {
   Future<List<Trip>> getSomeTrips() async {
     try {
 
-      // final url = Uri.parse('$baseUrl/viajes/algunos-viajes');
-      final url = Uri.parse('http://192.168.1.9:8081/viajes/algunos-viajes');
+      final url = Uri.parse('$baseUrl/viajes/algunos-viajes');
       print('🔍 Fetching some trips from: $url');
 
       final response = await http.get(
