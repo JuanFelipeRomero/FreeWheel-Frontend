@@ -1,5 +1,3 @@
-// Placeholder for the conductor screen - you'll need to create this
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freewheel_frontend/presentation/screens/create_trip_screen.dart';
@@ -13,136 +11,162 @@ class DriverScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Panel de Conductor')),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(FontAwesomeIcons.car, size: 64, color: Colors.blue),
-            const SizedBox(height: 24),
-            const Text(
-              'Panel de Conductor',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Center(
+              child: const Text(
+                'Panel de Conductor',
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Aquí podrás gestionar tu informacion y tus viajes como conductor',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+            const SizedBox(height: 8),
+            Center(
+              child: const Text(
+                'Aquí podrás gestionar tu información y tus viajes como conductor',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+              ),
             ),
             const SizedBox(height: 32),
 
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => DriverTripsScreen()),
-                );
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                  Colors.blueAccent,
-                ),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            // First row of cards
+            Row(
+              children: [
+                // Viajes card
+                Expanded(
+                  child: _buildServiceCard(
+                    context,
+                    FontAwesomeIcons.car,
+                    'Viajes',
+                    'Ver tus viajes como conductor',
+                        () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => DriverTripsScreen()),
+                      );
+                    },
                   ),
                 ),
-                minimumSize: MaterialStateProperty.all<Size>(
-                  // Added minimum size like in register screen
-                  const Size(250, 50),
-                ),
-              ),
-              child: const Text(
-                'Viajes',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CreateTripScreen(),
-                  ),
-                );
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                  Colors.blueAccent,
-                ),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                const SizedBox(width: 16),
+                // Publicar viaje card
+                Expanded(
+                  child: _buildServiceCard(
+                    context,
+                    FontAwesomeIcons.plus,
+                    'Publicar viaje',
+                    'Crear un nuevo viaje',
+                        () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CreateTripScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                minimumSize: MaterialStateProperty.all<Size>(
-                  // Added minimum size like in register screen
-                  const Size(250, 50),
-                ),
-              ),
-              child: const Text(
-                'Publicar nuevo viaje',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              ],
             ),
 
             const SizedBox(height: 24),
 
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TripRequestsScreen(),
-                  ),
-                );
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                  Colors.blueAccent,
-                ),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                minimumSize: MaterialStateProperty.all<Size>(
-                  const Size(250, 50),
-                ),
-              ),
-              child: const Text(
-                'Solicitudes de Viaje',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            ElevatedButton(
-              onPressed: () => {print('vehiculos')},
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                  Colors.blueAccent,
-                ),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            // Second row of cards
+            Row(
+              children: [
+                // Solicitudes card
+                Expanded(
+                  child: _buildServiceCard(
+                    context,
+                    FontAwesomeIcons.bell,
+                    'Solicitudes',
+                    'Ver solicitudes de pasajeros',
+                        () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TripRequestsScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                minimumSize: MaterialStateProperty.all<Size>(
-                  // Added minimum size like in register screen
-                  const Size(250, 50),
+                const SizedBox(width: 16),
+                // Mi Vehículo card
+                Expanded(
+                  child: _buildServiceCard(
+                    context,
+                    FontAwesomeIcons.carSide,
+                    'Mi Vehículo',
+                    'Gestionar información del vehículo',
+                        () => {print('vehiculos')},
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Mi Vehiculo',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildServiceCard(
+      BuildContext context,
+      IconData icon,
+      String title,
+      String description,
+      VoidCallback onTap,
+      ) {
+    return SizedBox(
+      height: 220, // Fixed height for consistent card size
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.grey.shade300, width: 1),
+        ),
+        color: Colors.grey.shade50,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 28,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
