@@ -103,40 +103,6 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         ),
                       ),
                     ),
-
-                    const SizedBox(height: 24),
-
-                    SizedBox(
-                      width: screenWidth * 0.80,
-                      child: ElevatedButton(
-                        onPressed:
-                            () => print('Editar perfil (en desarrollo...)'),
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all<Color>(
-                            Colors.white,
-                          ),
-                          foregroundColor: WidgetStateProperty.all<Color>(
-                            Colors.black87,
-                          ),
-                          shape:
-                              WidgetStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                          side: WidgetStateProperty.all<BorderSide>(
-                            const BorderSide(color: Colors.black12, width: 1.0),
-                          ),
-                        ),
-                        child: Text(
-                          'Editar perfil',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
