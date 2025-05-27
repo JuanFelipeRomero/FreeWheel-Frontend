@@ -111,31 +111,6 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
               const SizedBox(height: 50),
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton.icon(
-                  icon: const FaIcon(FontAwesomeIcons.users, size: 18),
-                  label: const Text(
-                    'Ver pasajeros',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  onPressed: () {
-                    // TODO: Implementar ver pasajeros
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: BorderSide(
-                      color: Theme.of(context).primaryColorDark,
-                      width: 1.5,
-                    ),
-                    foregroundColor: Theme.of(context).primaryColorDark,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
                 child: ElevatedButton.icon(
                   icon: const FaIcon(
                     FontAwesomeIcons.solidCircleCheck,
