@@ -158,7 +158,7 @@ class _ActiveTripsScreenState extends State<ActiveTripsScreen> {
   }
 
   Widget _buildTripCard(PassengerTrip trip) {
-    final statusColor = _getStatusColor(trip.estado);
+    final statusColor = _getStatusColor(trip.estado, trip.viaje.estado);
 
     // Format trip details
     final dateFormat = DateFormat('EEEE, d MMMM, y', 'es_ES');
@@ -303,11 +303,10 @@ class _ActiveTripsScreenState extends State<ActiveTripsScreen> {
                 ),
               ),
 
-              const Divider(height: 1),
 
               // Trip details
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -463,7 +462,12 @@ class _ActiveTripsScreenState extends State<ActiveTripsScreen> {
     );
   }
 
-  Color _getStatusColor(String status) {
+  Color _getStatusColor(String status, String tripState) {
+
+    if (tripState == 'iniciado') {
+      return Colors.blueAccent;
+    }
+
     switch (status) {
       case 'ACEPTADO':
         return Colors.green;
@@ -507,6 +511,9 @@ class _ActiveTripsScreenState extends State<ActiveTripsScreen> {
   }
 
   bool _shouldShowActions(String reservationState, String tripState) {
+    if (tripState == 'iniciado') {
+      return false;
+    }
     return (reservationState == 'PENDIENTE' || reservationState == 'ACEPTADO');
   }
 }
