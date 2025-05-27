@@ -15,6 +15,35 @@ class TripService {
   final String baseUrl = dotenv.env['API_BASE_URL'] ?? 'http://localhost:8000';
   final AuthService _authService = AuthService();
 
+  //Metodo para obtener algunos viajes
+  Future<List<Trip>> getSomeTrips() async {
+    try {
+
+      // final url = Uri.parse('$baseUrl/viajes/algunos-viajes');
+      final url = Uri.parse('http://192.168.1.9:8081/viajes/algunos-viajes');
+      print('🔍 Fetching some trips from: $url');
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
+        print('✅ Received ${data.length} trips');
+        return data.map((json) => Trip.fromJson(json)).toList();
+      } else {
+        print('❌ Error fetching trips: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to load trips (${response.statusCode})');
+      }
+    } catch (e) {
+      print('❌ Exception during fetching trips: $e');
+      throw Exception('Error connecting to the server: $e');
+    }
+  }
+
   // Método para buscar viajes disponibles
   Future<TripSearchResponse> searchTrips({
     required double originLat,

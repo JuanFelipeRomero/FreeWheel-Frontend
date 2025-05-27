@@ -5,11 +5,19 @@ import 'package:freewheel_frontend/presentation/screens/login_screen.dart';
 import 'package:freewheel_frontend/presentation/shell/main_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
+  await initializeDateFormatting();  // Initialize Spanish locale data
   print("API URL: ${dotenv.env['API_BASE_URL']}");
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es', null); // o el locale que uses
+  await initializeDateFormatting('en', null); // o el locale que uses
+
+  // Rest of your main function
   runApp(
     ChangeNotifierProvider(
       create: (context) => TripState(),
