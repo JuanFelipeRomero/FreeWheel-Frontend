@@ -73,11 +73,12 @@ class DriverScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Second row of cards
             Row(
+              mainAxisAlignment: MainAxisAlignment.center, // Center children horizontally
               children: [
                 // Solicitudes card
-                Expanded(
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.5 - 24, // Half screen minus padding
                   child: _buildServiceCard(
                     context,
                     FontAwesomeIcons.bell,
@@ -93,17 +94,7 @@ class DriverScreen extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 16),
-                // Mi Vehículo card
-                Expanded(
-                  child: _buildServiceCard(
-                    context,
-                    FontAwesomeIcons.carSide,
-                    'Mi Vehículo',
-                    'Gestionar información del vehículo',
-                        () => {print('vehiculos')},
-                  ),
-                ),
+                // Removed the SizedBox spacing as it's no longer needed without a second element
               ],
             ),
           ],
